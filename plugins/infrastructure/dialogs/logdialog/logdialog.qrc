@@ -1,0 +1,10 @@
+<!DOCTYPE RCC><RCC version="1.0">
+  <qresource prefix="/studio/plugins/infrastructure/dialogs/logdialog/">
+    <file>icons/fa-ban.svg</file>
+    <file>icons/fa-check-circle.svg</file>
+    <file>icons/fa-circle-pause.svg</file>
+    <file>icons/fa-circle-question.svg</file>
+    <file>icons/fa-circle-xmark.svg</file>
+    <file>icons/loading.gif</file> <!-- license: https://icons8.com/license -->
+  </qresource>
+</RCC>

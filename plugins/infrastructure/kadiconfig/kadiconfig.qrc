@@ -1,0 +1,11 @@
+<!DOCTYPE RCC><RCC version="1.0">
+  <qresource prefix="/studio/plugins/infrastructure/kadiconfig/">
+    <file>icons/fa-clone-regular.svg</file>
+    <file>icons/fa-plus-solid.svg</file>
+    <file>icons/fa-minus-solid.svg</file>
+    <file>icons/fa-trash-can-solid.svg</file>
+    <file>icons/fa-eye-slash-regular.svg</file>
+    <file>icons/fa-eye-regular.svg</file>
+    <file>icons/fa-eye-solid.svg</file>
+  </qresource>
+</RCC>

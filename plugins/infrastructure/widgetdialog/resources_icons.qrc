@@ -1,0 +1,7 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>icons/barretr_Pencil.png</file>
+    <file>icons/cancel.png</file>
+    <file>icons/help-browser.png</file>
+</qresource>
+</RCC>

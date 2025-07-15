@@ -1,0 +1,11 @@
+<!DOCTYPE RCC><RCC version="1.0">
+  <qresource prefix="/studio/plugins/application/workflowinteraction/">
+    <file>icons/design-svgrepo-com.svg</file>
+    <file>icons/fa-ban.svg</file>
+    <file>icons/clipboard-list.svg</file>
+    <file>icons/book.svg</file>
+    <file>icons/square-poll.svg</file>
+    <file>icons/play.svg</file>
+    <file>help/help.txt</file>
+  </qresource>
+</RCC>

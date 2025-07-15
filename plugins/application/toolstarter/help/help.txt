@@ -1,0 +1,15 @@
+<body>
+<h2>Übersicht</h2>
+
+<p>
+Konsolenanwendungen stellen sehr mächtige und flexible Werkzeuge dar, die es dem Anwender erlauben, auf vielfältige Art und Weise Aufgaben zu bearbeiten und zu automatisieren. Da der Anwender jedoch keine benutzerfreundliche Oberfläche präsentiert bekommt, sondern auf der Kommandozeile oft komplizierte Befehle einzugeben hat, deren Bedeutungen mühsam erarbeitet werden müssen, werden sogenannte Frontends aufgesetzt. Diese schliessen die Lücke zwischen dem unbedarften Anwender und der Konsolenapplikation. Einfache graphische Elemente steuern die Parameter der aufzurufenden Applikation. Dabei werden die möglichen Schalter auf ein Mass reduziert, welches zum Erledigen der häufigsten Arbeiten nötig sind. Dadurch wird die Benutzerfreundlichkeit der Anwendung verbessert.
+</p>
+
+<p>
+Ist die Anzahl der Parameter jedoch zu gross, um für die Eingabe über die Kommandozeile noch praktikabel zu sein, bietet sich die Option der Verwendung von Konfigurationsdateien, deren Dateiname als Parameter an das Zielprogramm übergeben wird. Das Zielprogramm öffnet danach diese Datei und setzt seine Einstellungen gemäß der gespeicherten Parameter. Prinzipiell ist das System jedoch auch zur Generierung einer Parameterliste, welche direkt an das Zielprogramm übermittelt wird, geeignet.
+</p>
+
+<p>
+Durch dieses Modul ist es möglich dynamisch Benutzungsoberfläche zu erstellen und so auf bequeme Art und Weise die Variablen zu verändern und neue Konfiguration für eine Benutzeroberfläche zu erstellen. Da sich das Berechnungsprogramm in stetigem Wandel befindet, ändert sich auch Anzahl und Art der Parameter kontinuierlich. Eine statische Oberfläche zu entwickeln, diese immer wieder anzupassen und neu zu kompilieren ist umständlich. Eine dynamische, durch eine einfache Beschreibungssprache definierte Oberfläche löst dieses Problem.
+</p>
+</body>

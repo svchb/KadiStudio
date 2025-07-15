@@ -1,0 +1,9 @@
+[Desktop Entry]
+GenericName=Kadi Workflow Editor
+Name=Workflow Editor
+MimeType=application/x-kadi-workflow;
+Exec=kadistudio --workfloweditor %f
+Icon=/usr/share/icons/kadistudio/workfloweditor/application-x-kadi-workflow.svg
+Type=Application
+Terminal=false
+Categories=Education;Science

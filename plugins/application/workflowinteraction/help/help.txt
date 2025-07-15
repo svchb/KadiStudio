@@ -1,0 +1,31 @@
+<body>
+<h2>How to use</h2>
+<h3>Loading Workflows</h3>
+<p>
+Workflows in the form of .flow files can be loaded from the menu <i>Workflow</i> -> <i>Load</i>.
+When a workflow is loaded, and was already started, it's also possible to reload it via <i>Workflow</i> -> <i>Reload</i> to run another workflow execution with the same .flow file. This is useful for example in case you ran into an error and you want to quickly restart the workflow using different input values, or if you need to run the workflow several times.
+</p>
+<p>
+Also you can switch from other plugins directly to this plugin:
+<ul>
+  <li>In the Workflow Editor Plugin, choose <i>Workflow</i> -> <i>Execute</i> in order to directly load the current .flow in the Workflow Interaction Plugin. Note that the Workflow Editor will automatically save the .flow file when doing this.</li>
+  <li>In the Workflow Execution Plugin, use the context menu on any Workflow Execution which has interactions, and select <i>Interact</i>. This also switches to the Workflow Interaction Plugin and loads the respective workflow execution.</li>
+</ul>
+</p>
+
+<h3>Control and interact</h3>
+<p>
+Once a workflow is loaded, the Start button can be used to start workflow execution.
+While the workflow is running, the bottom area of the view will show live status information like the current progress and current state.
+At any time the workflow can be canceled using the Cancel button.
+In case there are necessary inputs or other types of interactions (like output only interactions), they will appear in the tab bar in the top/main area of the view.
+Once all the necessary inputs are filled out, you can press Continue to let the workflow execution proceed.
+The inputs will be grouped based on their dependencies in the workflow. Each group will go into a separate tab. Once continue is pressed, the current and previous tabs will be disabled, so that the values can still be seen but no longer be changed.
+</p>
+
+<p>
+After a workflow finished successfully, there might be result files which appear in the drop down menu next to the Start button.
+This can be achieved in the Workflow by adding a FileOutput-Node and ticking the "shortcut" checkbox. Once the workflow finishes and the file exists,
+it will be shown in the drop down menu for quick access. If you click on a file the <b>default application</b> of your operating system will be used to open the file. If this doesn't work correctly, make sure that the file type (file extension, MIME-type) is configured correctly in your system and an application is mapped to the respective file type.
+</p>
+</body>

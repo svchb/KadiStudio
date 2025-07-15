@@ -1,0 +1,222 @@
+<body>
+<h2>How to use</h2>
+
+<h3>Create workflows</h3>
+<h4>Node types</h4>
+In KadiStudio, the creation of workflows is implemented by adding and connecting nodes within a graphical user interface (GUI) using an intuitive point-and-click interface as shown in <a href="#availableEditors">Figure 1</a>.
+For a more detailed overview on this topic the user is referred to <a href="https://doi.org/10.5334/dsj-2022-016">Griem et al. 2021</a>.
+<figure>
+  <center>
+    <img src=":/studio/plugins/application/workfloweditor/help/AvailableEditors.png" height="300" id="availableEditors"/><br/>
+    <figcaption>Figure 1: GUI of KadiStudio, with opened context menu. Workflows can be modelled by adding and connecting nodes using a point-and-click interface.</figcaption>
+  </center>
+</figure>
+
+<p>
+Each of the insertable nodes represents a generic atomistic working step that and can be differentiated between (i) tool nodes, which serve to integrate various programs or functions, (ii) environment nodes, which are used in combination with tool nodes, and finally (iii) built-in nodes, which allow to influence the execution of the workflow.
+These node types are presented in <a href="#nodeTypes">Figure 2</a>.
+While the list of tool and environment nodes can be extended as desired by the user to incorporate custom functionalities, the built-in nodes are predefined and not changeable.
+</p>
+<figure>
+  <center>
+    <img src=":/studio/plugins/application/workfloweditor/help/NodeTypes.png" height="300" id="nodeTypes"/><br/>
+    <figcaption>Figure 2: Available node types. Built-in nodes are gray, environment nodes green and tool nodes blue.</figcaption>
+  </center>
+</figure>
+<p>
+Each node describes a specific process that contains both inputs and outputs represented by the input and output ports respectively. Within a workflow, the input and output ports serve to exchange information between nodes over defined interfaces.
+Input ports are located on the left hand side of the node and the output ports on the right hand side. Depending on their task, the ports can be divided into parameterisation, dependency, environment and stdin/stdout ports. Stdin and stdout ports refer to the standard input and standard output streams of the underlying program, respectively. Parameterisation ports are used to pass arguments and options necessary to execute the node, such as string or boolean values. The execution order of the nodes, including control mechanisms such as if-conditions and for-loops, can be defined using the dependency ports.
+Environment ports are used to set a prefix to a tool node to execute it in a specific environment, such as a secure shell (SSH), that enables the remote execution of tools. Piping the output of a node into another node can further be realised using stdin and stdout ports.
+When executing a workflow, the added tool nodes are translated into command line interface (CLI) commands by the process engine and run, under consideration of the inputs and outputs.
+</p>
+
+<h4>Parameterisation and use of nodes</h4>
+<p>
+  As mentioned in the previous section, tool nodes represent CLI commands that possess defined inputs and outputs. To parameterise the underlying CLI command, the node's input ports are used. A simple example of such a parameterisation is presented in  <a href="#echoHelloWorld">Figure 3</a>.
+  The added tool node represents the `echo' CLI command. Adding a source node of type string and connecting it to the tool node allows for the parameterisation of the echo command. In the presented example, 'Hello World!' is passed to the tool node, resulting in the command shown in <a href="#echoHelloWorld">Figure 3</a>(b).
+</p>
+<figure>
+  <center>
+    <img src=":/studio/plugins/application/workfloweditor/help/echoNodeHelp.png" height="350" id="echoHelloWorld"/><br/>
+    <figcaption>Figure 3: Node parameterisation. The parameterisation of an <i>echo</i> node using a string source node is shown in (a). The command executed when the node is run is shown in (b).</figcaption>
+  </center>
+</figure>
+<p>
+  To pipe a node's output into another node, the stdout and stdin ports are used.
+  Adding a <i>File Output</i> node to the workflow example of <a href="#echoHelloWorld">Figure 3</a> and connecting it to the tool node as shown in <a href="#pipeIntoFile">Figure 4</a>(a) activates this piping functionality. 
+</p>
+<figure>
+  <center>
+    <img src=":/studio/plugins/application/workfloweditor/help/echoPipe.png" height="350" id="pipeIntoFile"/><br/>
+    <figcaption>Figure 4: Piping of a node's output. Connecting the stdout port to the stdin port as shown in (a) pipes the standard output stream of the tool node into the standard input stream of the <i>File Output</i> node. The resulting command is shown in (b).</figcaption>
+  </center>
+</figure>
+<p>
+  As can be seen in the resulting command shown in <a href="#pipeIntoFile">Figure 4</a>(b), the standard output is forwarded to the second node.
+  In addition, the dependency ports have also been connected in this example.
+  Defining the dependencies of the workflow nodes supports the process engine in determining the execution order of the added nodes.
+  In the shown example, this implies that the <i>File Output</i> node is not executed until the echo node has been called and executed successfully.
+  In general, when modelling a workflow, it is strongly recommended that the dependency ports are connected, as an undefined execution order may render the workflow inoperable. 
+</p>
+<h4>Use of evironment nodes</h4>
+<p>
+  Using environment nodes allows for the execution of tool nodes in specific environments. In <a href="#pipeIntoFile">Figure 4</a> a parameterised environment node is added to the workflow of <a href="#echoHelloWorld">Figure 3</a>.
+  As seen in the corresponding command shown in <a href="#sshEcho">Figure 5</a>(b), the tool command is prefixed with the <i>ssh</i> command, resulting in the remote execution of the former. 
+</p>
+<figure>
+  <center>
+    <img src=":/studio/plugins/application/workfloweditor/help/echoSsh.png" height="350" id="sshEcho"/><br/>
+    <figcaption>Figure 5: Use of environment nodes. Connecting an <i>environment</i> node to the tool node as shown in (a) prefixes the tool node command with an additional command. The executed composed command can be seen in (b).</figcaption>
+  </center>
+</figure>
+<p>
+  Environment nodes offer a convenient way to create more complex CLI commands by joining several individual commands together, allowing, for example, for the execution of a simulation study on a remote high performance computing system.
+</p>
+<h4>Interactive parameterisation</h4>
+<p>
+  In the previous examples, the nodes were parameterised using so-called source nodes, that provide the computational values <i>string, boolean, integer</i> and <i>float</i>.
+  These are set when the workflow is created and remain constant for each execution.
+  In order to interactively redefine certain parameters during the execution, <i>user input</i> nodes are available as part of the built-in nodes.
+  These nodes pause the execution of the workflow and prompt the user for an input via a dialogue box before continuing the execution, as shown in <a href="#cropImage">Figure 6</a>. Through the use of such user interactions the user is given the control over the workflow execution. Workflows are therefore not just predefined scripts that can be applied under certain circumstances, but can be seen as generic tools adaptable to the current use case during execution.
+  The interactively definable parameters are manifold and include not only the query of basic computational values but also the selection of files and, for example, the cropping of images to a section to be examined. To ensure the reproducibility of the obtained results, the interactively defined user inputs are saved within a log file. When uploading the results to a repository such as Kadi4Mat, the logged user inputs can be used as metadata for the generated data.
+</p>
+<figure>
+  <center>
+    <img src=":/studio/plugins/application/workfloweditor/help/UserInteractionCropImage.png" height="350" id="cropImage"/><br/>
+    <figcaption>Figure 6: Usage of <i>UserInput</i> nodes. During the execution, the user is prompted for an input, e.g. to select an image area, as shown in this example. The selected area can then be used in further investigations.</figcaption>
+  </center>
+</figure>
+By requesting the user to conduct an experiment with certain inputs and querying the results obtained as shown in <a href="#manualWorkstep">Figure 7</a>, manual work steps can also be structured and implemented.
+The workflow editor thus allows digital as well as analogue processes to be modelled in equal measure.
+<figure>
+  <center>
+    <img src=":/studio/plugins/application/workfloweditor/help/manualWorkstep.png" height="280" id="manualWorkstep"/><br/>
+    <figcaption>Figure 7: Integrating manual work steps. The user is given all necessary parameters and asked to select the generated results.</figcaption>
+  </center>
+</figure>
+<h4>Variables</h4>
+<p>
+  Once a source value has been statically or interactively defined it can be stored within a global variable, that can be accessed during the following workflow steps using the notation <i>${variableName}</i>. The declaration of a variable is shown in <a href="#variableDeclaration">Figure 8</a>. Even though the input port of the \textit{Variable} node expects a string value, any data type can be passed into the node. For this, the input is cast into a string as visualised by the blue and white arrow symbol on the connection in \autoref{VariableDeclaration}. This casting function is not exclusive to \textit{Variable} nodes but can be used in all nodes.
+</p>
+<figure>
+  <center>
+    <img src=":/studio/plugins/application/workfloweditor/help/variableDeclaration.png" height="200" id="variableDeclaration"/><br/>
+    <figcaption>Figure 8: Declaration of a global variable. The shown variable can be accessed using ${variableName}. As the input port "value" of the <i>Variable</i> node expects a string, the integer value 42, provided by the source node, is cast into a string. This type casting is indicated  by the blue and white arrow symbol on the connection.</figcaption>
+  </center>
+</figure>
+<h4>For-Loop</h4>
+<p>
+  The use of variables allows not only to structure workflows more clearly, but also to reference dynamic values within the execution of a workflow. <a href="#forLoopExample">Figure 9</a> demonstrates this using a for-loop, in which the defined loop parameter is referenced during the execution of the tool. 
+  In the shown example the <i>echo</i> node is connected to the loop port of the <i>Loop</i> node and is therefore executed repeatedly. Once the end index is reached, the next node in the execution order is executed, which may be connected to the loop node via the dependency port, for example.
+</p>
+<figure>
+  <center>
+    <img src=":/studio/plugins/application/workfloweditor/help/forLoopExample.png" height="200" id="forLoopExample"/><br/>
+    <figcaption>Figure 9: Implementation of the <i>Loop</i> node. The connected <i>echo</i> node is executed repeatedly until the <i>EndIndex</i> is reached.</figcaption>
+  </center>
+</figure>
+<h4>If-Branch and Branch-Select</h4>
+<p>
+  In addition to <i>Loop</i> nodes, there are <i>If Branch</i> and <i>BranchSelect</i> nodes within the control nodes that can be used to influence the execution order of the workflow. When called, the <i>If Branch</i> node checks the given condition and, based on its value, executes one of the connected workflow branches. The condition to be checked can be a static boolean value, an interactively defined value or the return value of a function, as shown in <a href="#ifBranch">Figure 10</a>. In the given example, the stdout "True" of the <i>echo</i> node will be cast into a boolean value and evaluated by the <i>IfBranch</i> node, thus executing the true workflow branch. After this, the execution order along the dependency ports of the workflow is resumed. 
+</p>
+<figure>
+  <center>
+    <img src=":/studio/plugins/application/workfloweditor/help/ifBranch.png" height="200" id="ifBranch"/><br/>
+    <figcaption>Figure 10: Use of an <i>IfBranch</i> node. The <i>IfBranch</i> node evaluates the return value of a tool node. Apart from the return value of a tool, static boolean values and interactively defined values can be used as condition. Depending on the condition, the <i>true</i> or the <i>false</i> workflow branch is executed.</figcaption>
+  </center>
+</figure>
+<p>
+  The implementation of more than one workflow junction can be realised using the <i>Branch Select</i> node. Within this node the number of outputs is freely definable. When executed, the node validates its input and guides the execution path to the corresponding workflow branch. The given value can again be either a static value, an interactively chosen value or the output value of a tool node.
+  In combination with a <i>UserInput:Choose</i> node as shown in <a href="#UserInteractionChooselarge">Figure 11</a> the interactive selection of the workflow path can be realised. As soon as the selected branch has been successfully executed, the execution order is resumed.
+</p>
+<figure>
+  <center>
+    <img src=":/studio/plugins/application/workfloweditor/help/UserInteractionChooselarge.png" height="500" id="UserInteractionChooselarge"/><br/>
+    <figcaption>Figure 11: Interactive user selection. The combination of <i>UserInput: Choose</i> and <i>BranchSelect</i> node allows to interactively select different execution paths. Multiple functionalities can thus be included into a single workflow, allowing for the selection of different analyses depending on the current use-case, for example.</figcaption>
+  </center>
+</figure>
+
+<h3>Adding new nodes</h3>
+<p>
+As mentioned, the tool and environment nodes can be extended by the user as desired.
+Prerequisite for a node to be added to the editor is that the underlying CLI-command is (i) executable and (ii) provides the <i>--xmlhelp</i> option. The <i>--xmlhelp</i> option returns a machine readable description of the command, that is needed by the process engine to create the visual representation of the command within the editor. In case the desired tool does not provide this option, it can be added retroactively, for example, with a wrapper script using the <a href="https://pypi.org/project/xmlhelpy/"><i>xmlhelpy</i></a> Python library.
+</p>
+<p>
+  <a href="#codeSnippet">Listing 1</a> shows an abbreviated, exemplary implementation of such a Python wrapper for the <i>echo</i> command. The XML output generated by this wrapper is shown in <a href="#xmlhelpWhiteBrief">Listing 2</a>.
+</p>
+
+<figure>
+    <pre>
+      <code id="codeSnippet">
+        import subprocess
+        import sys
+
+        from xmlhelpy import argument
+        from xmlhelpy import option
+
+        # Decoration with @command defines the node type as 'tool'.
+        # Using @environment would set the node type to environment.
+        @command(version="0.1.0")
+        # @argument and @option add new ports to the tool node,
+        # which serve to parameterise the underlying funcion.
+        @argument("message", description="Message to be echoed")
+        @option(
+            "no-newline",
+            char="n",
+            is_flag=True,
+            description="Do not output the trailing newline",
+        )
+        # The echo function is executed when the node is called.
+        def echo(message, no_newline):
+            """Wrapper node for echo (GNU coreutils)."""
+            cmd = ["echo"]
+
+            if no_newline:
+                cmd.append("-n")
+
+            cmd.append(message)
+            sys.exit(subprocess.run(cmd).returncode)
+      </code>
+    </pre>
+  <center>
+    <figcaption>Listing 1: Shows an abbreviated, exemplary implementation of such a Python wrapper for the <i>echo</i> command.</figcaption>
+  </center>
+</figure>
+
+<figure>
+    <pre>
+      <code id="xmlhelpWhiteBrief">
+        &lt;?xml version='1.0' encoding='UTF-8'?&gt;
+        &lt;program name="workflow nodes system echo" description="Wrapper node for echo (GNU coreutils)" version ="0.11.0"&gt;
+          &lt;param description="Message to be echoed" type="string" name ="arg0" positional="true" required="true"/&gt;
+          &lt;param description="Do not output the trailing newline" type="flag" name ="no-newline" char="n" default="false"/&gt;
+        &lt;/program&gt;
+      </code>
+    </pre>
+  <center>
+    <figcaption>Listing 2: XML output. The wrapper script shown in <a href="#codeSnippet">Listing 1</a> returns this XML when using the <i>--xmlhelp</i> option. The root element <i>program</i> specifies the command as a regular tool. Each of the <i>param</i> elements represents a configurable option of the wrapped command.</figcaption>
+  </center>
+</figure>
+<p>
+  The structure of an xmlhelp output always follows the same pattern. After the declaration as an XML document, a root element of type <i>program</i> or <i>env</i> follows, which indicates a tool or an environment node respectively and is provided with the name, description and version attributes. Within this element, a <i>param</i> element is specified for each possible parameter of the command, which must contain the name, description and type attributes in order to be rendered within the editor. Additionally, further attributes such as a default value can be defined. The definition of these <i>params</i> specifies the inputs of the final node and thus serves to represent the underlying process with respect to the IPO model. 
+  The tool node derived from the xmlhelp above is shown in <a href="#EchoNodeBrief">Figure 12</a>.
+</p>
+<figure>
+  <center>
+    <img src=":/studio/plugins/application/workfloweditor/help/EchoNodeBrief.png" height="200" id="EchoNodeBrief"/><br/>
+    <figcaption>Figure 12: Created echo node. Echo node derived from the XML output shown in <a href="#xmlhelpWhiteBrief">Listing 2</a>. Each <i>param</i> is represented by an input port. Tool node specific ports such as <i>env</i> are added automatically.</figcaption>
+  </center>
+</figure>
+<p>
+  To make the wrapper script of <a href="#codeSnippet">Listing 1</a> executable, it is added to the  <a href="https://pypi.org/project/workflow-nodes/">workflow-nodes</a> library that collects and structures various Python-based wrappers, tools and environments to ease their installation and use.
+  At this point, the tool fulfills both prerequisites: (i) <i>executable</i>, (ii) <i>--xmlhelp</i> option and can be added to the editor's tool list using its GUI as shown in <a href="#RegisterExternalTool">Figure 13</a>.
+  In the dialogue every executable within the PATH environment variable is listed.
+  Selecting a tool will permanently add it to the usable tools of the editor.
+</p>
+<figure>
+  <center>
+    <img src=":/studio/plugins/application/workfloweditor/help/RegisterExternalTool.png" height="350" id="RegisterExternalTool"/><br/>
+    <figcaption>Figure 13: Dialogue for registering tools in the editor. All executables in the PATH are listed. Commands can be queried and the default search path can be extended by the user.</figcaption>
+  </center>
+</figure>
+</body>

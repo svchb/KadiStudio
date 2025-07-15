@@ -1,0 +1,658 @@
+#
+# Order by stage and then alphabatic order
+# All rules should be placed in gitlab/.ci-rules.yml
+#
+
+before_script:
+  - echo "System info:"
+  - which bash
+  - bash --version
+  - which make
+  - make --version
+  - which cmake
+  - cmake --version
+  - which gcc
+  - gcc --version
+  - which mpirun
+  - mpirun --version
+  - uname -a
+  # - which pdflatex
+  # - which makeindex
+  # - ./configure.sh -o 3D -l 0
+  # - scripts/printsolvername.sh
+  - which valgrind
+
+
+default:
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+      - unknown_failure
+
+
+stages:
+  - build
+  - test
+  - doc
+  - static analysis
+  - deploy
+
+
+include:
+  - local: /.gitlab/.ci-rules.yml
+
+
+###################################
+# Static analysis Stage
+###################################
+
+static_analysis:cleansrc:
+  stage: static analysis
+  needs: []
+  rules:
+    - when: always
+  script:
+    - QUALITY_JSON=true make cleansrc
+    - git diff --exit-code --ignore-submodules
+  artifacts:
+    reports:
+      codequality: quality.json
+
+
+static_analysis:update-gitignore:
+  stage: static analysis
+  needs: []
+  rules:
+    - when: always
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+  script:
+    - make update-gitignore
+    - git diff --exit-code --ignore-submodules .gitignore
+
+
+###################################
+# Build Stage
+###################################
+
+build:autotester:
+  stage: build
+  needs: []
+  rules: !reference [.rules_autotester]
+  script:
+    - make -C postprocessing/debug/autotester/ -j $(nproc)
+  artifacts: !reference [.artifacts_rules, artifacts]
+
+
+build:mig:
+  stage: build
+  needs: []
+  rules: !reference [.rules_sim]
+  script:
+    - make -C preprocessing/mig/ -j $(nproc)
+  artifacts: !reference [.artifacts_rules, artifacts]
+
+
+build:postprocessing_analyser:
+  stage: build
+  needs: []
+  rules: !reference [.rules_sim]
+  script:
+    - make -C postprocessing/analyser/ -j $(nproc)
+  artifacts: !reference [.artifacts_rules, artifacts]
+
+
+build:glviewer:
+  stage: build
+  needs: []
+  rules: !reference [.rules_glviewer]
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+  script:
+    - ./compile_test.sh -d glviewer/ -f -j $(nproc)
+  artifacts: !reference [.artifacts_rules, artifacts]
+
+
+# build:preprocessing:
+#   stage: build
+#   needs: []
+#   rules: !reference [.rules_preprocessing_build]
+#   script:
+#     - ./compile_test.sh -d preprocessing/ -f -j $(nproc)
+#   artifacts: !reference [.artifacts_rules, artifacts]
+#
+#
+# build:postprocessing:
+#   stage: build
+#   needs: []
+#   rules: !reference [.rules_postprocessing_build]
+#   script:
+#     - ./compile_test.sh -d postprocessing/ -f -j $(nproc)
+#   artifacts: !reference [.artifacts_rules, artifacts]
+#
+#
+# .build:sim:template:
+#   stage: build
+#   needs: []
+#   rules: !reference [.rules_sim]
+#   variables:
+#     SOLVER_NAMES: 'pace1D,pace2D,pace3D,pace2D.lrop5,pace3D.lrop6' # default
+#   script:
+#     - ./compile_test.sh -s -t $SOLVER_NAMES -j $(nproc)
+#   artifacts:
+#     paths:
+#       - ./sim/pace*D*
+#       - ./pace*D*
+#     expire_in: 1 weeks
+
+
+# build:sim:debug:
+#   extends: .build:sim:template
+#   variables:
+#     SOLVER_NAMES: 'pace1D.debug,pace2D.debug,pace3D.debug,pace2D.lrop5.debug,pace3D.lrop6.debug'
+#
+#
+# build:sim:
+#   extends: .build:sim:template
+#   variables:
+#     SOLVER_NAMES: 'pace1D,pace2D,pace3D,pace2D.lrop5,pace3D.lrop6'
+#
+#
+# build:sim:mpi:
+#   extends: .build:sim:template
+#   variables:
+#     SOLVER_NAMES: 'pace1D.mpi,pace2D.mpi,pace3D.mpi,pace2D.lrop5.mpi,pace3D.lrop6.mpi'
+#
+#
+# build:sim:mpi:debug:
+#   extends: .build:sim:template
+#   variables:
+#     SOLVER_NAMES: 'pace1D.mpi.debug,pace2D.mpi.debug,pace3D.mpi.debug,pace2D.lrop5.mpi.debug,pace3D.lrop6.mpi.debug'
+
+
+build:studio:
+  stage: build
+  needs: []
+  rules: !reference [.rules_studio]
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+  script:
+    - make lib/evaluate/dynfunc_compiler.h
+    - find `pwd` -iname "dynfunc_compiler.h"
+    - make -C studio clean
+    - make -C studio -j $(nproc)
+
+
+build:unittests:
+  stage: build
+  needs: []
+  rules: !reference [.rules_unittests]
+  script:
+    - ./compile_test.sh -j $(nproc) -d unittests/ -f
+  artifacts:
+    untracked: true
+    exclude:
+      - unittests/**/*.o
+      - unittests/**/*.a
+    expire_in: 2 weeks
+
+
+build:propertiestest:
+  stage: build
+  needs: []
+  rules: !reference [.rules_propertiestest]
+  script:
+    - make -j $(nproc) -C lib/properties/test/ propertiestest
+  artifacts:
+    paths:
+      - ./lib/properties/test/propertiestest
+    expire_in: 2 weeks
+
+
+# build:xtools:
+#   stage: build
+#   needs: []
+#   rules: !reference [.rules_xtools]
+#   script:
+#     - ./compile_test.sh -j $(nproc) -d xtools/ -f
+#   artifacts:
+#     paths:
+#       - ./xtools/xsimview
+#     expire_in: 2 weeks
+
+
+###################################
+# Test Stage
+###################################
+
+test:unittests:
+  stage: test
+  needs: ["build:unittests"]
+  rules: !reference [.rules_unittests]
+  script:
+    - cd unittests/ && ./run_unittests.sh -x unittestresult.xml
+  after_script:
+    - mkdir public/
+    - mv unittests/unittestresult.xml public/unittestresult.xml
+    - cat public/unittestresult.xml | xsltproc scripts/unitTestToJUnit.xsl - > result.xml
+  dependencies:
+    - build:unittests
+  artifacts:
+    expose_as: 'Unittest result'
+    paths:
+      - public/unittestresult.xml
+    reports:
+      junit: result.xml
+    expire_in: 2 weeks
+    when: always
+
+
+test:properties:
+  stage: test
+  needs: ["build:propertiestest"]
+  rules: !reference [.rules_propertiestest]
+  script:
+    - ./lib/properties/test/propertiestest
+
+
+valgrind:autotester:
+  stage: test
+  needs: ["build:autotester"]
+  rules: !reference [.rules_autotester]
+  script:
+    - valgrind --leak-check=full --error-exitcode=1
+      postprocessing/debug/autotester/autotester
+      postprocessing/debug/autotester
+
+
+.test:autotester_template:
+  stage: test
+  variables:
+    CMD_NAME: '' # default
+    TEST_PATH: '' #default
+  script:
+    - ./postprocessing/debug/autotester/autotester support/integrationtest/${TEST_PATH}/${CMD_NAME}/ -X -M result_${CMD_NAME}.xml
+  after_script:
+    - mkdir public/
+    - mv result_${CMD_NAME}.xml public/result_${CMD_NAME}.xml
+    - cat public/result_${CMD_NAME}.xml | xsltproc scripts/autotesterToJUnit.xsl - > result_${CMD_NAME}_junit.xml
+    - >
+      if [ $CI_JOB_STATUS != 'success' ]; then
+        cat support/integrationtest/${TEST_PATH}/${CMD_NAME}/log_*.txt
+      fi
+  artifacts:
+    paths:
+      - support/integrationtest/${TEST_PATH}/${CMD_NAME}/log_*.txt
+      - public/*
+    reports:
+      junit: result_${CMD_NAME}_junit.xml
+    expire_in: 2 weeks
+    when: always
+
+
+# Preprocessing Tests
+
+.test:preprocessing:template:
+  extends: .test:autotester_template
+  rules: !reference [.rules_preprocessing]
+
+
+test:preprocessing:metainfilegenerator:
+  extends: .test:preprocessing:template
+  needs: ["build:autotester", "build:mig", "build:sim"]
+  after_script:
+    - !reference [.test:preprocessing:template, after_script]
+    - mv example.infile public/example.infile
+  variables:
+    CMD_NAME: 'mig'
+    TEST_PATH: 'preprocessing'
+
+
+test:preprocessing:filling:generatepacking:
+  extends: .test:preprocessing:template
+  needs: ["build:autotester", "build:postprocessing_analyser", "build:preprocessing"]
+  variables:
+    CMD_NAME: 'generatepacking'
+    TEST_PATH: 'preprocessing/filling'
+
+
+# Solver Tests
+
+.test:sim:template:
+  extends: .test:autotester_template
+  rules: !reference [.rules_sim]
+
+
+test:sim:pace2D:
+  extends: .test:sim:template
+  needs: ["build:autotester", "build:postprocessing_analyser", "build:sim"]
+  variables:
+    CMD_NAME: 'pace2D'
+    TEST_PATH: 'sim'
+
+
+test:sim:pace2D.mpi:
+  extends: .test:sim:template
+  needs: ["build:autotester", "build:postprocessing_analyser", "build:sim:mpi"]
+  variables:
+    CMD_NAME: 'pace2D.mpi'
+    TEST_PATH: 'sim'
+
+
+test:sim:pace3D:
+  extends: .test:sim:template
+  needs: ["build:autotester", "build:postprocessing_analyser", "build:sim"]
+  variables:
+    CMD_NAME: 'pace3D'
+    TEST_PATH: 'sim'
+
+
+test:sim:pace3D.mpi:
+  extends: .test:sim:template
+  needs: ["build:autotester", "build:postprocessing_analyser", "build:sim:mpi"]
+  variables:
+    CMD_NAME: 'pace3D.mpi'
+    TEST_PATH: 'sim'
+
+
+# solidmechanics Test
+
+test:solidmechanics:pace2D:
+  extends: .test:sim:template
+  needs: ["build:autotester", "build:postprocessing", "build:sim"]
+  variables:
+    CMD_NAME: 'pace2D'
+    TEST_PATH: 'sim/solidmechanics'
+
+
+test:solidmechanics:pace2D.mpi:
+  extends: .test:sim:template
+  tags:
+    - fat
+  needs: ["build:autotester", "build:postprocessing", "build:sim:mpi"]
+  variables:
+    CMD_NAME: 'pace2D.mpi'
+    TEST_PATH: 'sim/solidmechanics'
+
+
+test:solidmechanics:pace3D:
+  extends: .test:sim:template
+  needs: ["build:autotester", "build:postprocessing", "build:sim"]
+  variables:
+    CMD_NAME: 'pace3D'
+    TEST_PATH: 'sim/solidmechanics'
+
+
+test:solidmechanics:pace3D.mpi:
+  extends: .test:sim:template
+  tags:
+    - fat
+  needs: ["build:autotester", "build:postprocessing", "build:sim:mpi"]
+  variables:
+    CMD_NAME: 'pace3D.mpi'
+    TEST_PATH: 'sim/solidmechanics'
+
+
+# temperature test
+
+test:temperature:pace2D:
+  extends: .test:sim:template
+  needs: ["build:autotester", "build:postprocessing_analyser", "build:sim"]
+  variables:
+    CMD_NAME: 'pace2D'
+    TEST_PATH: 'sim/temperature'
+
+
+# chemomechanics test
+
+test:chemomechanics:pace2D:
+  extends: .test:sim:template
+  needs: ["build:autotester", "build:postprocessing", "build:sim"]
+  variables:
+    CMD_NAME: 'pace2D'
+    TEST_PATH: 'sim/chemomechanics'
+
+
+test:chemomechanics:pace2D.mpi:
+  extends: .test:sim:template
+  tags:
+    - fat
+  needs: ["build:autotester", "build:postprocessing", "build:sim:mpi"]
+  variables:
+    CMD_NAME: 'pace2D.mpi'
+    TEST_PATH: 'sim/chemomechanics'
+
+
+test:chemomechanics:pace3D.mpi:
+  extends: .test:sim:template
+  tags:
+    - fat
+  needs: ["build:autotester", "build:postprocessing", "build:sim:mpi"]
+  variables:
+    CMD_NAME: 'pace3D.mpi'
+    TEST_PATH: 'sim/chemomechanics'
+
+
+# fluidmechanics
+
+test:fluiddynamics:pace2D:
+  extends: .test:sim:template
+  needs: ["build:autotester", "build:postprocessing_analyser", "build:sim", "build:postprocessing"]
+  variables:
+    CMD_NAME: 'pace2D'
+    TEST_PATH: 'sim/fluiddynamics'
+
+
+test:fluiddynamics:pace2D.mpi:
+  extends: .test:sim:template
+  tags:
+    - fat
+  needs: ["build:autotester", "build:postprocessing_analyser", "build:sim:mpi", "build:postprocessing"]
+  variables:
+    CMD_NAME: 'pace2D.mpi'
+    TEST_PATH: 'sim/fluiddynamics'
+
+
+test:fluiddynamics:pace3D.mpi:
+  extends: .test:sim:template
+  tags:
+    - fat
+  needs: ["build:autotester", "build:postprocessing_analyser", "build:sim:mpi", "build:postprocessing"]
+  variables:
+    CMD_NAME: 'pace3D.mpi'
+    TEST_PATH: 'sim/fluiddynamics'
+
+
+# crack
+
+test:crack:pace2D.mpi:
+  extends: .test:sim:template
+  tags:
+    - fat
+  needs: ["build:autotester", "build:postprocessing_analyser", "build:sim:mpi"]
+  variables:
+    CMD_NAME: 'pace2D.mpi'
+    TEST_PATH: 'sim/crack'
+
+
+# fluiddynamics rigid body
+
+test:fluiddynamics_rigidbody:pace2D:
+  extends: .test:sim:template
+  needs: ["build:autotester", "build:postprocessing", "build:sim"]
+  variables:
+    CMD_NAME: 'pace2D'
+    TEST_PATH: 'sim/fluiddynamics_rigidbody'
+
+
+test:fluiddynamics_rigidbody:pace2D.mpi:
+  extends: .test:sim:template
+  needs: ["build:autotester", "build:postprocessing", "build:sim:mpi"]
+  variables:
+    CMD_NAME: 'pace2D.mpi'
+    TEST_PATH: 'sim/fluiddynamics_rigidbody'
+
+
+###################################
+# Doc Stage
+###################################
+
+.doc:template:
+  stage: doc
+  rules: !reference [.rules_doc]
+  needs: ["build:postprocessing"]
+  variables:
+    TARGET_NAME: 'pace3d-The_Hitchhiker_s_Guide_to_the_Galaxy.pdf' # default
+  script:
+    - cd docs/ && make ${TARGET_NAME}
+  after_script:
+    - mkdir public/
+    - cp docs/*.pdf public/
+  artifacts:
+    paths:
+      - public/
+    expire_in: 2 weeks
+    when: always
+
+
+doc:The_Hitchhiker:
+  extends: .doc:template
+  variables:
+    TARGET_NAME: 'pace3d-The_Hitchhiker_s_Guide_to_the_Galaxy.pdf'
+
+
+doc:pdfs:
+  extends: .doc:template
+  variables:
+    TARGET_NAME: 'pdfs'
+
+
+doc:docu-infilekeys:
+  extends: .doc:template
+  needs: ["build:mig"]
+  variables:
+    TARGET_NAME: 'docu-infilekeys.pdf'
+
+
+doc:toolcompendium:
+  stage: doc
+  needs: ["build:postprocessing", "build:preprocessing"]
+  rules: !reference [.rules_doc]
+  script:
+    - cd docs/ && make toolcompendium
+  after_script:
+    - mkdir public/
+    - cp docs/toolcompendium.{xml,html,pdf} public/
+  artifacts:
+    paths:
+      - public/
+      - docs/toolcompendium.log
+    expire_in: 2 weeks
+    when: always
+
+
+doc:doxygen:
+  stage: doc
+  needs: ["build:postprocessing"]
+  rules: !reference [.rules_doxygen]
+  allow_failure: true
+  script:
+    - cd docs/ && make doc > doxygen.log
+  after_script:
+    - mv docs/doxygen/ public
+    - rm -rf public/sim
+    - ls -la
+    - ls -la public
+  # TODO Fix artifacts (100mb limit maybe to less)
+  artifacts:
+    paths:
+      - public
+#      - docs/sim/html.tar.bz2
+      - docs/doxygen.log
+    expire_in: 2 weeks
+    when: always
+
+
+###################################
+# Deploy Stage
+###################################
+
+build_debian:
+  stage: deploy
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+  rules: !reference [.rules_default_branch_only]
+  script:
+    - echo "Building debian packages..."
+    - sed -i 's%\t@find . -name \\\*.deb -print0%#\t@find . -name \\\*.deb -print0%g' makefile
+    - make debian -j $(nproc)
+    - echo "Done!"
+  when: manual
+  artifacts:
+    paths:
+    - ./*.deb
+    expire_in: 1 week
+
+
+.build:nightly_debian:template:
+  stage: deploy
+  variables:
+    OS_NAME: 'bookworm'  # default
+    GIT_SUBMODULE_STRATEGY: recursive
+  timeout: 3h 30m
+  rules: !reference [.rules_nightly]
+  script:
+    - touch ~/.kadiconfig
+    - NIGHTLY=true make changelogupdate
+    - NIGHTLY=true make debian -j $(nproc)
+  after_script:
+    - '('
+    - rm -f ~/.kadiconfig
+    - mkdir deb_build
+    - mv ../*.deb deb_build/
+    - mv ../*.changes deb_build/
+    - mv ../*.buildinfo deb_build/
+    - ls -la deb_build/
+    - temp_key_file=$(mktemp -p /dev/shm/)
+    - chmod 600 "${temp_key_file}"
+    - ssh_key_s=${SSH_KEY} printenv ssh_key_s >> ${temp_key_file}
+    - trap "shred --remove=wipe \"${temp_key_file}\"" EXIT ERR
+    - rsync -e "ssh -i ${temp_key_file}" deb_build/*.deb ${DEB_REPO_USER}@${DEB_REPO}:/var/www/incoming/${OS_NAME}/deb/
+    - ')'
+  artifacts:
+    paths:
+      - deb_build/*.deb
+      - ./**/build.log
+    expire_in: 1 week
+
+
+build:nightly_debian:bookworm:
+  extends: .build:nightly_debian:template
+  variables:
+    OS_NAME: 'bookworm'
+  tags:
+    - single
+    - bookworm
+
+build:nightly_debian:bullseye:
+  extends: .build:nightly_debian:template
+  variables:
+    OS_NAME: 'bullseye'
+  tags:
+    - single
+    - bullseye
+
+pages:
+  stage: deploy
+  needs: ["doc:toolcompendium","doc:docu-infilekeys","doc:The_Hitchhiker","doc:pdfs"]
+  rules: !reference [.rules_default_branch_only]
+  script:
+    - ls -la
+    - ls -la public
+    - cd public && tree -T "Pace3D documentations" -H '.' -L 1 --noreport --charset utf-8 -o index.html
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 week

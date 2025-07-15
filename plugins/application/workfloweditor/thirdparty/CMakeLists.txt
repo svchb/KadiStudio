@@ -1,0 +1,5 @@
+set(BUILD_TESTING FALSE)
+set(BUILD_EXAMPLES FALSE)
+set(BUILD_SHARED_LIBS ON)
+
+add_subdirectory(nodes)

@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/studio/plugins/infrastructure/kadiintegration/">
+    <file>img/loading.gif</file>
+    <file>img/fa-cloud-arrow-down.svg</file>
+</qresource>
+</RCC>

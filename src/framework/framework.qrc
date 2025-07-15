@@ -1,0 +1,11 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource prefix="/studio/framework/">
+    <file>pixmaps/kadi.png</file>
+    <file>pixmaps/kadi_logo.svg</file>
+    <file>pixmaps/plugins.png</file>
+    <file>pixmaps/info.png</file>
+    <file>pixmaps/configure.svg</file>
+    <file>pixmaps/noicon.png</file>
+  </qresource>
+</RCC>

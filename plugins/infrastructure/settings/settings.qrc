@@ -1,0 +1,5 @@
+<!DOCTYPE RCC><RCC version="1.0">
+  <qresource prefix="/studio/plugins/infrastructure/settings/">
+    <file>icons/fa-sliders-h.svg</file>
+  </qresource>
+</RCC>

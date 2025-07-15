@@ -1,0 +1,6 @@
+[submodule "lib/cpputils"]
+	path = lib/cpputils
+	url = https://gitlab.com/iam-cms/kadi-libs/cpputils.git
+[submodule "plugins/application/workfloweditor/thirdparty/nodes"]
+	path = plugins/application/workfloweditor/thirdparty/nodes
+	url = https://gitlab.com/iam-cms/workflows/nodes-library.git

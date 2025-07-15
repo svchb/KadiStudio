@@ -1,93 +1,109 @@
-# kadi-studio
+# kadistudio
 
+**kadistudio** is a graphical desktop application designed to complement and extend the [Kadi4Mat](https://kadi.iam.kit.edu/) research data infrastructure for materials science. Developed at the Karlsruhe Institute of Technology (KIT), kadistudio provides a native, interactive interface for managing, visualizing, and analyzing materials data in conjunction with Kadi4Mat.
 
+## About Kadi4Mat
 
-## Getting started
+[Kadi4Mat](https://kadi.iam.kit.edu/) (Karlsruhe Data Infrastructure for Materials Science) is a platform that supports the FAIR principles (Findable, Accessible, Interoperable, Reusable) for research data management. It enables structured storage, sharing, and reuse of data across the materials science community and beyond.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+While Kadi4Mat offers a powerful web-based interface and backend, **kadistudio** enhances the user experience by offering:
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+- A native desktop GUI built with Qt
+- Rich data visualization and exploration tools
+- Plugin support for custom workflows
+- Integration with local and remote Kadi4Mat instances
 
-## Add your files
+## Plugin System
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+kadistudio supports a modular plugin architecture that allows users to extend its functionality without modifying the core application.
+Plugins can be developed in C++ and are loaded dynamically at runtime.
+Plugins can be used to add new tools, automate workflows, or integrate external software and data sources.
 
-```
-cd existing_repo
-git remote add origin https://gitlab.com/iam-cms/kadi-studio.git
-git branch -M main
-git push -uf origin main
-```
+### Plugin Structure
 
-## Integrate with your tools
+A plugin typically consists of:
 
-- [ ] [Set up project integrations](https://gitlab.com/iam-cms/kadi-studio/-/settings/integrations)
+- A class that inherits from the appropriate plugin interface (`PluginInterface` in C++).
+- A `run()` method that defines the plugin's behavior.
+- A set of metadata that describes the plugin's name, version, and dependencies.
 
-## Collaborate with your team
+### Example Plugin Use Cases (not yet all public available)
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+- **Data Import/Export Plugins**
+  Import experimental data from CSV, Excel, or instrument-specific formats and export processed data to Kadi4Mat or local files.
 
-## Test and Deploy
+- **Visualization Plugins**
+  Create custom plots (e.g., stress-strain curves, phase diagrams) using libraries like matplotlib or QCustomPlot.
 
-Use the built-in continuous integration in GitLab.
+- **Simulation Integration**
+  Launch external simulation tools (e.g., Phasefield) and automatically link results to Kadi4Mat records.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+- **Metadata Enrichment**
+  Automatically extract and suggest metadata from uploaded files using NLP or image analysis.
 
-***
+- **Batch Processing**
+  Apply transformations or analyses to multiple datasets at once, such as normalization, filtering, or statistical evaluation.
 
-# Editing this README
+## Getting Started
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+### Prerequisites
 
-## Suggestions for a good README
+    CMake (≥ 3.16)
+    C++20 compatible compiler
+    Qt 5.x
+    Git
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+### Build Instructions
 
-## Name
-Choose a self-explaining name for your project.
+  - Clone the repository:
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+    ```
+    git clone --recursive https://github.com/kadi4mat/kadi-studio.git
+    cd kadi-studio
+    ```
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+  - Create a build directory:
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+    ```
+    mkdir build
+    cd build
+    ```
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+  - Configure the project with CMake:
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+    ```
+    cmake .. -DCMAKE_BUILD_TYPE=Release
+    ```
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+    If Qt is not in your default path, specify it manually:
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+    ```
+    cmake .. -DCMAKE_PREFIX_PATH=/path/to/Qt
+    ```
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+  - Build the project:
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+    ```
+    cmake --build .
+    ```
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+  - Run kadistudio:
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+    ```
+    ./bin/kadistudio
+    ```
+
+## Developing Plugins
+
+  More info to come
+
+## Community & Support
+
+- Open an issue with your question.
+- Join our community discussions on [Mattermost Community Channel](https://mattermost.hzdr.de/kadi4mat-community)
+- Use email [feedback-kadi4mat@lists.kit.edu](mailto:feedback-kadi4mat@lists.kit.edu)
+- Reach out to maintainers via GitLab.
 
 ## License
-For open source projects, say how it is licensed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+This project is licensed under the Apache License 2.0. See the LICENSE file for details.

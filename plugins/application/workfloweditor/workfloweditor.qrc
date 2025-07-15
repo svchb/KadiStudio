@@ -1,0 +1,43 @@
+<!DOCTYPE RCC><RCC version="1.0">
+  <qresource prefix="/studio/plugins/application/workfloweditor/">
+<!--    <file>icons/fa-arrows-down-to-line.svg</file>-->
+    <file>icons/fa-background.svg</file>
+    <file>icons/fa-ban.svg</file>
+    <file>icons/fa-border-all.svg</file>
+    <file>icons/fa-check-circle.svg</file>
+    <file>icons/fa-cloud-arrow-up.svg</file>
+    <file>icons/fa-eye.svg</file>
+    <file>icons/fa-file.svg</file>
+    <file>icons/fa-folder-open.svg</file>
+    <file>icons/fa-clock-regular.svg</file>
+<!--    <file>icons/fa-floppy-disk.svg</file>-->
+    <file>icons/content-save-outline.svg</file>
+    <file>icons/content-save-edit-outline.svg</file>
+    <file>icons/fa-play.svg</file>
+    <file>icons/fa-rectangle-list.svg</file>
+    <file>icons/fa-retweet.svg</file>
+    <file>icons/fa-toolbox.svg</file>
+    <file>icons/fa-wand-sparkles.svg</file>
+    <file>icons/camera-solid.svg</file>
+    <file>icons/arrow-rotate-left-solid.svg</file>
+    <file>icons/arrow-rotate-right-solid.svg</file>
+    <file>icons/magnifying-glass-minus-solid.svg</file>
+    <file>icons/magnifying-glass-plus-solid.svg</file>
+    <file>icons/magnifying-glass-location-solid.svg</file>
+    <file>icons/flow-svgrepo-com.svg</file>
+    <file>help/help.txt</file>
+    <file>help/AvailableEditors.png</file>
+    <file>help/echoNodeHelp.png</file>
+    <file>help/echoSsh.png</file>
+    <file>help/manualWorkstep.png</file>
+    <file>help/RegisterExternalTool.png</file>
+    <file>help/UserInteractionCropImage.png</file>
+    <file>help/EchoNodeBrief.png</file>
+    <file>help/echoPipe.png</file>
+    <file>help/forLoopExample.png</file>
+    <file>help/ifBranch.png</file>
+    <file>help/NodeTypes.png</file>
+    <file>help/UserInteractionChooselarge.png</file>
+    <file>help/variableDeclaration.png</file>
+  </qresource>
+</RCC>

@@ -1,0 +1,2 @@
+<h1>Test Plugin Help</h1>
+<p>This plugin can be used to test different things</p>

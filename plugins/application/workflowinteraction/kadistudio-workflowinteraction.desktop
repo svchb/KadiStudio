@@ -1,0 +1,9 @@
+[Desktop Entry]
+GenericName=Kadi Workflow Interaction
+Name=Workflow Ausfuehrung
+MimeType=application/x-kadi-workflow;
+Exec=kadistudio --workflowinteraction %f
+Icon=/usr/share/icons/kadistudio/workfloweditor/application-x-kadi-execution.svg
+Type=Application
+Terminal=false
+Categories=Education;Science
