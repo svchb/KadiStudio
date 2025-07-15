@@ -1,0 +1,45 @@
+set(KADISTUDIO_COMPILE_PLUGINS ON)
+
+# application plugins
+
+set(KADISTUDIO_PLUGIN_APPLICATION_filterchain                             OFF)
+set(KADISTUDIO_PLUGIN_APPLICATION_imagestacklab                           OFF)
+set(KADISTUDIO_PLUGIN_APPLICATION_infileeditor                            OFF)
+set(KADISTUDIO_PLUGIN_APPLICATION_logger                                  OFF)
+set(KADISTUDIO_PLUGIN_APPLICATION_simpleglviewer                          OFF)
+set(KADISTUDIO_PLUGIN_APPLICATION_testplugin                              OFF)
+set(KADISTUDIO_PLUGIN_APPLICATION_toolstarter                             OFF)
+set(KADISTUDIO_PLUGIN_APPLICATION_workfloweditor                          OFF)
+set(KADISTUDIO_PLUGIN_APPLICATION_workflowexecution                       OFF)
+set(KADISTUDIO_PLUGIN_APPLICATION_workflowinteraction                     OFF)
+
+# infrastructure plugins
+
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_dialogs_editvariablesdialog          OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_dialogs_fileopen_kadifiledialog      OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_dialogs_fileopen_localfiledialog     OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_dialogs_logdialog                    OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_dialogs_registertooldialog           OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_eventmanager                         OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_glviewslibrary                       OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_kadiconfig                           OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_kadiintegration                      OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_menupluginchooser                    OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_propertyformwidget                   OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_qpropertywidgetfactory               OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_settings                             OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_simulations_geometrydatamanager      OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_simulations_simulationmanager        OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_toolchooser                          OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_widgetdialog                         OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_widgetdialog_namedialog_delta_t      OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_widgetdialog_namedialog_epsilon      OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_widgetdialog_typedialog_matrix       OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_widgetdialog_typedialog_vector       OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_workflows_processmanager             OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_workflows_processmanager_interaction OFF)
+set(KADISTUDIO_PLUGIN_INFRASTRUCTURE_workflows_processmanager_workflow    OFF)
+
+# testing / untitests
+
+set(BUILD_TESTING OFF)

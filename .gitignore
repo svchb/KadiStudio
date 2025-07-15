@@ -1,1 +1,13 @@
+#build folder
 build/
+
+#backup files
+*~
+
+#ide files
+.ctagsdb
+*.kdev*
+.cproject
+.project
+/.idea/**
+*.swp

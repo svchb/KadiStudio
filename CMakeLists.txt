@@ -9,29 +9,7 @@ set(CMAKE_CXX_STANDARD 20)
 # scan header files and invoke MOC from Qt automatically
 set(CMAKE_AUTOMOC ON)
 
-# set(BUILD_TESTING OFF)
-
-set(KADISTUDIO_COMPILE_PLUGINS ON)
-
-# application plugins
-# set(KADISTUDIO_PLUGIN_testplugin ON)
-set(KADISTUDIO_PLUGIN_tooldialog ON)
-set(KADISTUDIO_PLUGIN_workfloweditor ON)
-set(KADISTUDIO_PLUGIN_workflowexecution ON)
-set(KADISTUDIO_PLUGIN_workflowinteraction ON)
-
-# infrastructure plugins
-set(KADISTUDIO_PLUGIN_logdialog ON)
-set(KADISTUDIO_PLUGIN_localfiledialog ON)
-set(KADISTUDIO_PLUGIN_filedialogchooser ON)
-set(KADISTUDIO_PLUGIN_registertooldialog ON)
-set(KADISTUDIO_PLUGIN_dialogchooser ON)
-set(KADISTUDIO_PLUGIN_custombuttondialog ON)
-set(KADISTUDIO_PLUGIN_qpropertywidgetfactory ON)
-set(KADISTUDIO_PLUGIN_processmanager ON)
-set(KADISTUDIO_PLUGIN_kadifiledialog ON)
-set(KADISTUDIO_PLUGIN_kadiconfig ON)
-set(KADISTUDIO_PLUGIN_kadiintegration ON)
+include(configure.txt)
 
 #
 # sets the paths for libraries and binary files.
