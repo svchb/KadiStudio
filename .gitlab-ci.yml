@@ -1,0 +1,25 @@
+stages:
+  - lint
+  - build
+  - deploy
+
+cleansrc:
+  stage: lint
+  script:
+    - find . -not \( -path "./.git/*" -prune \) \( -name \*.c -o -name \*.cpp -o -name \*.h \) -exec ./scripts/cleansrc.pl {} \;
+    - git diff --exit-code --ignore-submodules
+
+kadi-studio:
+  stage: build
+  tags:
+    - docker
+  before_script:
+    - apt update
+    - apt install --yes cmake qt5-default qttools5-dev qt5-default qt5-image-formats-plugins libqt5opengl5-dev libqt5webkit5-dev qtwebengine5-dev libqt5svg5-dev libjsoncpp-dev
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+    BUILD_FOLDER: build/
+  script:
+    - mkdir $BUILD_FOLDER
+    - cmake -S . -B $BUILD_FOLDER/
+    - cmake --build $BUILD_FOLDER/
