@@ -59,4 +59,3 @@ class Interaction : public InteractionInterface {
     std::vector<QString> options;
     bool multiline;
 };
-

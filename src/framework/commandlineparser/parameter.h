@@ -18,8 +18,8 @@
  *
  ********************************************************************/
 
-#ifndef LIB_PARAMETER_H
-#define LIB_PARAMETER_H
+#ifndef SRC_FRAMEWORK_COMMANDLINEPARSER_PARAMETER_H
+#define SRC_FRAMEWORK_COMMANDLINEPARSER_PARAMETER_H
 
 
 typedef enum variant_type_e {

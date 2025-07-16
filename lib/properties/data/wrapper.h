@@ -25,8 +25,8 @@
  *
  ********************************************************************/
 
-#ifndef LIB_WRAPPER_H
-#define LIB_WRAPPER_H
+#ifndef LIB_PROPERTIES_DATA_WRAPPER_H
+#define LIB_PROPERTIES_DATA_WRAPPER_H
 
 
 #include <errno.h>

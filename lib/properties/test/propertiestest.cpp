@@ -288,4 +288,3 @@ int main() {
   PropertiesTest().run();
   std::cout << "All test OK" << std::endl;
 }
-

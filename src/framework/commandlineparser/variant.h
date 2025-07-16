@@ -16,8 +16,8 @@
  *
  ********************************************************************/
 
-#ifndef LIB_VARIANT_H
-#define LIB_VARIANT_H
+#ifndef SRC_FRAMEWORK_COMMANDLINEPARSER_VARIANT_H
+#define SRC_FRAMEWORK_COMMANDLINEPARSER_VARIANT_H
 
 #include "parameter.h"
 

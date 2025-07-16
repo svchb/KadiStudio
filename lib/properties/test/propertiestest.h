@@ -76,4 +76,3 @@ class PropertiesTest {
     void test_matrixProperty();
     void test_dynamicProperty();
 };
-

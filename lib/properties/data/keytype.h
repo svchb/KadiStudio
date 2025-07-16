@@ -16,8 +16,8 @@
  *
  ********************************************************************/
 
-#ifndef LIB_DATAFILES_KEYTYPE_H
-#define LIB_DATAFILES_KEYTYPE_H
+#ifndef LIB_PROPERTIES_DATA_KEYTYPE_H
+#define LIB_PROPERTIES_DATA_KEYTYPE_H
 
 // escape sequences for the infile parameters (e.g. used by getValue())
 #define KEYTYPESTRING_UNKNOWN           "%u"

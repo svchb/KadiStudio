@@ -15,8 +15,8 @@
  *
  ********************************************************************/
 
-#ifndef LIB_COLORMAP_H
-#define LIB_COLORMAP_H
+#ifndef LIB_PROPERTIES_DATA_COLORMAP_H
+#define LIB_PROPERTIES_DATA_COLORMAP_H
 
 #ifdef __cplusplus
 extern "C" {

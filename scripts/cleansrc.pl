@@ -33,7 +33,7 @@ my $template = <<'END_MESSAGE';
 END_MESSAGE
 
 
-sub printQuality { # 
+sub printQuality { #
   my ($fh, $line, $modified_line, $file, $linenumber, $count, $type) = @_;
 
   my $replace = $template;
@@ -89,9 +89,9 @@ for (@ARGV) {
   }
 
   if (-e $quality_filename and -s $quality_filename) {
-    my $fsize = -s $quality_filename;  
+    my $fsize = -s $quality_filename;
     # print $fsize."\n";
-    open(QUALITY_FILE, "+<", $quality_filename) or die $!; 
+    open(QUALITY_FILE, "+<", $quality_filename) or die $!;
     seek QUALITY_FILE, $fsize-1, 0; # or 0 (numeric) instead of SEEK_SET
     if ($fsize > 3) {
       $count=1;
@@ -167,23 +167,33 @@ for (@ARGV) {
           print FILE "\n";
         }
 
-        if ( $_ =~ /.h$/ and $found == 0 and ($line =~ /#[ ]*ifndef .*_[hH].*$/) ) {
-          ## check for header guard
-          $i++;
-          if ($i>=@lines) { die("Reached end of header file ",$_); }
-          $line=$lines[$i];
-          if (not $line =~ /#[ ]*define .*_[hH].*$/) {
-            ## something went wrong write back what we already picked up
-            print FILE $lines[$i-1];
+        if ( $_ =~ /.h$/ and (($line =~ /#[ ]*ifndef .*_[hH].*$/) or ($line =~ /#[ ]*pragma[ ]*once$/))) {
+          if ($line =~ /#[ ]*ifndef .*_[hH].*$/) {
+            if ($found != 0) {
+              print FILE $lines[$i];
+              $found++;
+            } else {
+              ## check for header guard
+              $i++;
+              if ($i>=@lines) { die("Reached end of header file ",$_); }
+              $line=$lines[$i];
+              if (not $line =~ /#[ ]*define .*_[hH].*$/) {
+                ## something went wrong write back what we already picked up
+                print FILE $lines[$i-1];
+                print FILE $line;
+              } else {
+                my $newfilename = $_;
+                $newfilename =~ s/^\.//g;        # cut off .
+                $newfilename =~ s/^\///g;        # cut off /
+                $newfilename =~ s/[\/\.\-]/_/g;    # replace / and . with _
+                $newfilename = uc($newfilename); # to upper case
+                print FILE "#ifndef ", $newfilename, "\n#define ", $newfilename, "\n";
+                $found++;
+              }
+            }
+          } elsif ($line =~ /#[ ]*pragma[ ]*once$/) {
             print FILE $line;
-          } else {
-            my $newfilename = $_;
-            $newfilename =~ s/^\.//g;        # cut off .
-            $newfilename =~ s/^\///g;        # cut off /
-            $newfilename =~ s/[\/\.\-]/_/g;    # replace / and . with _
-            $newfilename = uc($newfilename); # to upper case
-            print FILE "#ifndef ", $newfilename, "\n#define ", $newfilename, "\n";
-            $found = 1;
+            $found++;
           }
         } else {
           ## "normal" line
@@ -206,9 +216,15 @@ for (@ARGV) {
       $count++;
     }
 
-    if ($_ =~ /.h$/ and $found == 0) { # check if header file was well formed
-      print STDERR "Header file ", $_, " has a malformed header.\n";
-      printQuality(\*QUALITY_FILE, "", "", $_, 1, $count, "Header file is malformed.");
+    if ($_ =~ /.h$/ and $found != 1) { # check if header file was well formed
+      my $msg;
+      if ($found == 0) {
+        $msg = "No header guard found";
+      } else {
+        $msg = "header guard found $found times";
+      }
+      print STDERR "Header file ", $_, " has a malformed header ($msg).\n";
+      printQuality(\*QUALITY_FILE, "", "", $_, 1, $count, "Header file is malformed $(msg).");
       $count++;
     }
     if ($j > 0) {

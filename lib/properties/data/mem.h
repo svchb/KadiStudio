@@ -18,8 +18,8 @@
  *
  ********************************************************************/
 
-#ifndef LIB_WRAPPER_MEM_H
-#define LIB_WRAPPER_MEM_H
+#ifndef LIB_PROPERTIES_DATA_MEM_H
+#define LIB_PROPERTIES_DATA_MEM_H
 
 static inline __attribute__ ((malloc)) void* Malloc_internal(size_t size, const char* const file, int line, const char* const function) {
   void *ptr;

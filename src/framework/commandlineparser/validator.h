@@ -131,8 +131,8 @@
  *
  ********************************************************************/
 
-#ifndef LIB_VALIDATOR_H
-#define LIB_VALIDATOR_H
+#ifndef SRC_FRAMEWORK_COMMANDLINEPARSER_VALIDATOR_H
+#define SRC_FRAMEWORK_COMMANDLINEPARSER_VALIDATOR_H
 
 #include "qsort.h"
 

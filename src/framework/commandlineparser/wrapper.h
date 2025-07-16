@@ -25,8 +25,8 @@
  *
  ********************************************************************/
 
-#ifndef LIB_WRAPPER_H
-#define LIB_WRAPPER_H
+#ifndef SRC_FRAMEWORK_COMMANDLINEPARSER_WRAPPER_H
+#define SRC_FRAMEWORK_COMMANDLINEPARSER_WRAPPER_H
 
 
 #include <errno.h>

@@ -19,8 +19,8 @@
  *
  ********************************************************************/
 
-#ifndef LIB_CONTAINER_STRINGCONV_H
-#define LIB_CONTAINER_STRINGCONV_H
+#ifndef SRC_FRAMEWORK_COMMANDLINEPARSER_STRINGCONV_H
+#define SRC_FRAMEWORK_COMMANDLINEPARSER_STRINGCONV_H
 
 #include "structures.h"
 

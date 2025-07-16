@@ -18,8 +18,8 @@
  *
  ********************************************************************/
 
-#ifndef LIB_DATAFILES_PARSE_H
-#define LIB_DATAFILES_PARSE_H
+#ifndef SRC_FRAMEWORK_COMMANDLINEPARSER_PARSE_H
+#define SRC_FRAMEWORK_COMMANDLINEPARSER_PARSE_H
 
 #ifndef HIDE_ERROR_MSG
 #  define HIDE_ERROR_MSG false

@@ -18,8 +18,8 @@
  *
  ********************************************************************/
 
-#ifndef LIB_WRAPPER_QSORT_H
-#define LIB_WRAPPER_QSORT_H
+#ifndef SRC_FRAMEWORK_COMMANDLINEPARSER_QSORT_H
+#define SRC_FRAMEWORK_COMMANDLINEPARSER_QSORT_H
 
 /** @brief Declares a comparison function for
  *         qsort(void* base, size_t num, size_t size, int (*compar)(const void*,const void*))

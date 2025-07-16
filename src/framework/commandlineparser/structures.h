@@ -16,8 +16,8 @@
  *
  ********************************************************************/
 
-#ifndef LIB_STRUCTURES_H
-#define LIB_STRUCTURES_H
+#ifndef SRC_FRAMEWORK_COMMANDLINEPARSER_STRUCTURES_H
+#define SRC_FRAMEWORK_COMMANDLINEPARSER_STRUCTURES_H
 
 typedef struct tokenlist_s {
   char  **result;
