@@ -2,7 +2,14 @@ cmake_minimum_required(VERSION 3.22)
 project(kadi-studio)
 
 # line from the site
-add_compile_definitions(QT_DISABLE_DEPRECATED_BEFORE=0x050F00)
+add_compile_definitions(QT_DISABLE_DEPRECATED_UP_TO=0x060200)
+
+find_package(Qt6 6.2 REQUIRED COMPONENTS
+        Core Gui Widgets
+        Qml Quick
+        Svg
+        WebEngineCore WebEngineWidgets
+)
 
 set(CMAKE_CXX_STANDARD 20)
 

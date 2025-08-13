@@ -1,25 +1,25 @@
-find_package(Qt5 COMPONENTS Widgets Gui REQUIRED)
+find_package(Qt6 COMPONENTS Widgets Gui REQUIRED)
 
 # We need add -DQT_WIDGETS_LIB when using QtWidgets in Qt 5.
-add_definitions(${Qt5Widgets_DEFINITIONS})
+add_definitions(${Qt6Widgets_DEFINITIONS})
 
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # framework library
 set(RCCS framework.qrc)
-QT5_ADD_RESOURCES(RCC_SRCS ${RCCS})
+QT6_ADD_RESOURCES(RCC_SRCS ${RCCS})
 
 add_library(kadistudio_framework SHARED
   ${RCC_SRCS}
 )
 
-target_link_libraries(kadistudio_framework ${Qt5Widgets_LIBRARIES})
+target_link_libraries(kadistudio_framework ${Qt6Widgets_LIBRARIES})
 
 target_include_directories(kadistudio_framework PUBLIC
-  # The Qt5Widgets_INCLUDES also includes the include directories for
+  # The Qt6Widgets_INCLUDES also includes the include directories for
   # dependencies QtCore and QtGui
-  SYSTEM ${Qt5Widgets_INCLUDE_DIRS}
+  SYSTEM ${Qt6Widgets_INCLUDE_DIRS}
   ${PROJECT_SOURCE_DIR}/lib/
   ${PROJECT_SOURCE_DIR}/lib/cpputils/include/
   ${PROJECT_SOURCE_DIR}/src/

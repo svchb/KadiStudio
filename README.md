@@ -50,7 +50,7 @@ A plugin typically consists of:
 
     CMake (≥ 3.16)
     C++20 compatible compiler
-    Qt 5.x
+    Qt 6.2+
     Git
 
 ### Build Instructions

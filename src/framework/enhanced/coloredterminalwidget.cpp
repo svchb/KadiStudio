@@ -188,12 +188,21 @@ void ColoredTerminalWidget::parseEscapeSequence(int attribute, QListIterator< QS
       break;
     }
     case 11 ... 19 : {
-      QFontDatabase fontDatabase;
-      QString fontFamily = textCharFormat.fontFamily();
-      QStringList fontStyles = fontDatabase.styles(fontFamily);
-      int fontStyleIndex = attribute - 11;
-      if (fontStyleIndex < fontStyles.length()) {
-        textCharFormat.setFont(fontDatabase.font(fontFamily, fontStyles.at(fontStyleIndex), textCharFormat.font().pointSize()));
+      const QStringList families = textCharFormat.fontFamilies().toStringList();
+      if (families.isEmpty())
+        break;
+      const QString& fontFamily = families.first();
+
+      const QStringList fontStyles = QFontDatabase::styles(fontFamily);
+
+      const int fontStyleIndex = attribute - 11;
+      if (fontStyleIndex >= 0 && fontStyleIndex < fontStyles.size()) {
+        const QFont cur = textCharFormat.font();
+        const int pt = cur.pointSize() > 0 ? cur.pointSize() : qRound(cur.pointSizeF());
+
+        textCharFormat.setFont(
+            QFontDatabase::font(fontFamily,fontStyles.at(fontStyleIndex), pt)
+        );
       }
       break;
     }
@@ -410,56 +419,88 @@ void ColoredTerminalWidget::setTextTermFormatting(QString const & text, const QT
     cursor.insertText(text.mid(previousOffset, (offset-previousOffset)), textCharFormat);
     previousOffset += (offset-previousOffset);
 
+
     if (match.hasMatch()) {
+      // Move the cursor past the first match
       previousOffset = match.capturedEnd();
-      if (match.capturedView() == QString("\x1B[")) {
+
+      // Compare against ESC+[ (CSI). Use QStringView-friendly literal.
+      if (match.capturedView() == u"\x1B[") {
         QRegularExpressionMatch match_sequence;
 
-        if ((match_sequence = escapeSequenceExpressionFormat.match(text, previousOffset, QRegularExpression::NormalMatch, QRegularExpression::AnchoredMatchOption)).hasMatch()) {
+        // Try to match a CSI "format" sequence starting exactly at previousOffset
+        if ((match_sequence = escapeSequenceExpressionFormat.match(
+               text,
+               previousOffset,
+               QRegularExpression::NormalMatch,
+               QRegularExpression::AnchorAtOffsetMatchOption)).hasMatch()) {
           previousOffset = match_sequence.capturedEnd();
-          QStringList capturedTexts = match_sequence.capturedTexts().back().split(";", Qt::SkipEmptyParts);
-          if (not capturedTexts.empty()) {
-            QListIterator<QString> i(capturedTexts);
-            while (i.hasNext()) {
+
+          // The last capture contains the semicolon-separated parameter list.
+          const QString params = match_sequence.capturedTexts().back();
+          const QStringList capturedTexts = params.split(QLatin1Char(';'), Qt::SkipEmptyParts);
+
+          if (!capturedTexts.isEmpty()) {
+            // Iterate parameters (e.g. SGR attributes like 0,1,31, ...)
+            QListIterator<QString> it(capturedTexts);
+            while (it.hasNext()) {
               bool ok = false;
-              int attribute = i.next().toInt(&ok);
+              const int attribute = it.next().toInt(&ok);
               if (ok) {
-                parseEscapeSequence(attribute, i, textCharFormat, defaultTextCharFormat);
+                // Your handler that updates textCharFormat appropriately
+                parseEscapeSequence(attribute, it, textCharFormat, defaultTextCharFormat);
               } else {
-                qWarning() << "Error in escape sequence \"" + match.captured() + match_sequence.captured() + "\"; falling back to default formating.";
+                // Convert QStringView to QString for safe concatenation
+                qWarning().nospace()
+                    << "Error in escape sequence \""
+                    << match.capturedView()
+                    << match_sequence.capturedView()
+                    << "\"; falling back to default formatting.";
                 textCharFormat = defaultTextCharFormat;
               }
             }
           } else {
-            textCharFormat = defaultTextCharFormat; // empty sequence means reset format
+            // Empty parameter list means reset (SGR 0)
+            textCharFormat = defaultTextCharFormat;
           }
-        } else if ((match_sequence = escapeSequenceExpressionControl.match(text, previousOffset, QRegularExpression::NormalMatch, QRegularExpression::AnchoredMatchOption)).hasMatch()) {
+        }
+        // Try other control sequences (non-formatting); also anchored at previousOffset
+        else if ((match_sequence = escapeSequenceExpressionControl.match(
+                    text,
+                    previousOffset,
+                    QRegularExpression::NormalMatch,
+                    QRegularExpression::AnchorAtOffsetMatchOption)).hasMatch()) {
           previousOffset = match_sequence.capturedEnd();
-          qDebug() << "Control detected " << match_sequence.capturedView();
+          qDebug() << "Control detected" << match_sequence.capturedView();
           qDebug() << "ignoring for now";
         }
       } else {
-        qDebug() << "General detected " << match.capturedView();
+        // General single-character controls (BEL, CR, etc.)
+        qDebug() << "General detected" << match.capturedView();
 
-        if (match.capturedView() == QString("\a")) {
+        if (match.capturedView() == u"\a") {
+          // BEL – beep / visual flash
           qWarning() << "beep";
-          auto timeLine = new QTimeLine(350, this);
+          auto *timeLine = new QTimeLine(350, this);
           timeLine->setFrameRange(0, 255);
+
+          // Brief viewport flash: animate background brightness
           connect(timeLine, &QTimeLine::frameChanged, [this](int frame) {
             QPalette p = this->viewport()->palette();
             p.setColor(this->viewport()->backgroundRole(), QColor(frame, frame, frame));
             this->viewport()->setPalette(p);
+            // If needed on your widget: this->viewport()->setAutoFillBackground(true);
           });
           connect(timeLine, &QTimeLine::finished, timeLine, &QTimeLine::deleteLater);
           timeLine->start();
-        } else if (match.capturedView() == QString("\r")) {
+        } else if (match.capturedView() == u"\r") {
+          // CR – move to line start; here we map to newline
           qDebug() << "carriage return";
           cursor.insertText("\n", textCharFormat);
         } else {
           qDebug() << "ignoring for now";
         }
       }
-
     }
   }
   cursor.setCharFormat(textCharFormat);

@@ -19,8 +19,8 @@ add_library(kadistudio_toolchooser SHARED
 
 target_link_libraries(kadistudio_toolchooser
   ${KADISTUDIO_FRAMEWORK}
-  Qt5::Xml
-  Qt5::Widgets
+  Qt6::Xml
+  Qt6::Widgets
 )
 
 string(REPLACE ${PROJECT_SOURCE_DIR} "" outputdestination ${CMAKE_CURRENT_SOURCE_DIR})

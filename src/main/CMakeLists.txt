@@ -1,8 +1,8 @@
-find_package(Qt5 COMPONENTS Widgets Gui REQUIRED)
+find_package(Qt6 COMPONENTS Widgets Gui REQUIRED)
 
 include_directories(
   ${PROJECT_SOURCE_DIR}/framework/
-  SYSTEM ${Qt5Widgets_INCLUDE_DIRS}
+  SYSTEM ${Qt6Widgets_INCLUDE_DIRS}
 )
 
 set(SRCS
@@ -15,7 +15,7 @@ add_executable(kadistudio
 )
 
 target_link_libraries(kadistudio
-  ${Qt5Widgets_LIBRARIES}
+  ${Qt6Widgets_LIBRARIES}
   ${KADISTUDIO_FRAMEWORK}
   ${CMAKE_DL_LIBS}
 )

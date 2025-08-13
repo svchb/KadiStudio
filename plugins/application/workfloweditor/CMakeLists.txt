@@ -1,4 +1,4 @@
-find_package(Qt5PrintSupport REQUIRED)
+find_package(Qt6PrintSupport REQUIRED)
 
 set(SRCS
   autolayout.cpp
@@ -53,7 +53,7 @@ endif()
 add_subdirectory(thirdparty)
 
 set(RCCS workfloweditor.qrc)
-QT5_ADD_RESOURCES(RCC_SRCS ${RCCS})
+QT6_ADD_RESOURCES(RCC_SRCS ${RCCS})
 
 add_library(kadistudio_workfloweditor SHARED
   ${SRCS}
@@ -71,9 +71,9 @@ target_compile_definitions(kadistudio_workfloweditor PUBLIC NODE_EDITOR_EXPORTS 
 
 target_link_libraries(kadistudio_workfloweditor
   ${KADISTUDIO_FRAMEWORK}
-  Qt5::Xml
-  Qt5::Svg
-  Qt5::PrintSupport
+  Qt6::Xml
+  Qt6::Svg
+  Qt6::PrintSupport
   QtNodes
 )
 

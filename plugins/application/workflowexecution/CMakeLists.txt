@@ -17,8 +17,8 @@ target_include_directories(kadistudio_workflowexecution
 
 target_link_libraries(kadistudio_workflowexecution
   ${KADISTUDIO_FRAMEWORK}
-  Qt5::Xml
-  ${Qt5Widgets_LIBRARIES}
+  Qt6::Xml
+  ${Qt6Widgets_LIBRARIES}
 )
 
 string(REPLACE ${PROJECT_SOURCE_DIR} "" outputdestination ${CMAKE_CURRENT_SOURCE_DIR})

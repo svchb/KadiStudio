@@ -5,7 +5,7 @@ set(SRCS
 
 add_library(kadistudio_logger SHARED ${SRCS})
 
-target_link_libraries(kadistudio_logger ${KADISTUDIO_FRAMEWORK} ${Qt5Widgets_LIBRARIES})
+target_link_libraries(kadistudio_logger ${KADISTUDIO_FRAMEWORK} ${Qt6Widgets_LIBRARIES})
 
 string(REPLACE ${PROJECT_SOURCE_DIR} "" outputdestination ${CMAKE_CURRENT_SOURCE_DIR})
 

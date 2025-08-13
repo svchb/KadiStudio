@@ -156,17 +156,29 @@ void HelpDialog::setPluginHelpText(QListWidgetItem *selected) {
           }
 
 
-          for (auto attr : attributes) {
-            if (attr.name() == "id") continue;
-            QString attrstring = " " + attr.name() + "=\"" + attr.value() + "\"";
-            starttag += attrstring;
+          for (const QXmlStreamAttribute &attr : attributes) {
+            // Compare QStringView to a view literal (pick one of the two lines below)
+            if (attr.name() == QLatin1StringView("id"))
+              continue;
+
+            // Build the start tag; convert views to QString explicitly
+            const QString attrString =
+                QStringLiteral(" ")
+                + attr.name().toString()
+                + QStringLiteral("=\"")
+                + attr.value().toString()
+                + QStringLiteral("\"");
+
+            starttag += attrString;
           }
           starttag += ">";
 
           text += starttag;
 
         } else if (xmlReader.isEndElement()) {
-          QString endtag = "</" + xmlReader.name() + ">";
+          const QString endtag = QStringLiteral("</")
+                               + xmlReader.name().toString()
+                               + QLatin1Char('>');
           text += endtag;
         } else if (xmlReader.isCharacters()) {
           text += xmlReader.text();

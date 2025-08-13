@@ -7,9 +7,9 @@ set(SRCS
 
 add_library(kadistudio_registertooldialog SHARED ${SRCS})
 
-find_package(Qt5 COMPONENTS Concurrent REQUIRED)
+find_package(Qt6 COMPONENTS Concurrent REQUIRED)
 
-target_link_libraries(kadistudio_registertooldialog ${KADISTUDIO_FRAMEWORK} Qt5::Widgets Qt5::Concurrent Qt5::Xml)
+target_link_libraries(kadistudio_registertooldialog ${KADISTUDIO_FRAMEWORK} Qt6::Widgets Qt6::Concurrent Qt6::Xml)
 
 string(REPLACE ${PROJECT_SOURCE_DIR} "" outputdestination ${CMAKE_CURRENT_SOURCE_DIR})
 

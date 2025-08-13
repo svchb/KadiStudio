@@ -10,7 +10,7 @@ set(SRCS
 
 
 set(RCCS toolstarter.qrc)
-QT5_ADD_RESOURCES(RCC_SRCS ${RCCS})
+QT6_ADD_RESOURCES(RCC_SRCS ${RCCS})
 
 add_library(kadistudio_toolstarter SHARED
   ${SRCS}
@@ -21,7 +21,7 @@ target_include_directories(kadistudio_toolstarter
   PRIVATE ${PROJECT_SOURCE_DIR}/plugins/infrastructure/dialogs/tooldialog
 )
 
-target_link_libraries(kadistudio_toolstarter ${KADISTUDIO_FRAMEWORK} properties ${Qt5Widgets_LIBRARIES})
+target_link_libraries(kadistudio_toolstarter ${KADISTUDIO_FRAMEWORK} properties ${Qt6Widgets_LIBRARIES})
 
 string(REPLACE ${PROJECT_SOURCE_DIR} "" outputdestination ${CMAKE_CURRENT_SOURCE_DIR})
 

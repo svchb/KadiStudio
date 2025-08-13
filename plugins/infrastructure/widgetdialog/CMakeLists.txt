@@ -3,7 +3,7 @@ set(SRCS
 )
 
 set(RCCS resources_icons.qrc)
-QT5_ADD_RESOURCES(RCC_SRCS ${RCCS})
+QT6_ADD_RESOURCES(RCC_SRCS ${RCCS})
 
 add_library(kadistudio_widgetdialog SHARED ${SRCS} ${RCC_SRCS})
 
@@ -13,7 +13,7 @@ target_include_directories(kadistudio_widgetdialog
 
 target_link_libraries(kadistudio_widgetdialog
   ${KADISTUDIO_FRAMEWORK}
-  Qt5::Widgets
+  Qt6::Widgets
 )
 
 string(REPLACE ${PROJECT_SOURCE_DIR} "" outputdestination ${CMAKE_CURRENT_SOURCE_DIR})

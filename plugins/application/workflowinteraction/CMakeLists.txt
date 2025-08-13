@@ -10,7 +10,7 @@ set(SRCS
 )
 
 set(RCCS workflowinteraction.qrc)
-QT5_ADD_RESOURCES(RCC_SRCS ${RCCS})
+QT6_ADD_RESOURCES(RCC_SRCS ${RCCS})
 
 add_library(kadistudio_workflowinteraction SHARED
   ${SRCS}
@@ -25,7 +25,7 @@ target_include_directories(kadistudio_workflowinteraction
 
 target_link_libraries(kadistudio_workflowinteraction
   ${KADISTUDIO_FRAMEWORK}
-  ${Qt5Widgets_LIBRARIES}
+  ${Qt6Widgets_LIBRARIES}
   properties
 )
 

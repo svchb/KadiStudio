@@ -140,16 +140,30 @@ void QBucketProgressBar::setAlignment(Qt::Alignment alignment) {
   }
 }
 
-QSize QBucketProgressBar::sizeHint() const {
+QSize QBucketProgressBar::sizeHint() const
+{
   ensurePolished();
-  QFontMetrics fm = fontMetrics();
+
+  const QFontMetrics fm = fontMetrics();
+
   QStyleOptionProgressBar opt;
   initStyleOption(&opt);
-  int cw = style()->pixelMetric(QStyle::PM_ProgressBarChunkWidth, &opt, this);
-  QSize size = QSize(qMax(9, cw) * 7 + fm.horizontalAdvance(QLatin1Char('0')) * 4, fm.height() + 8);
-  if (opt.orientation == Qt::Vertical) {
-    size = size.transposed();
+
+  if (orientation() == Qt::Horizontal) {
+    opt.state |= QStyle::State_Horizontal;
+  } else {
+    opt.state &= ~QStyle::State_Horizontal;
   }
+
+  const int cw = style()->pixelMetric(QStyle::PM_ProgressBarChunkWidth, &opt, this);
+
+  // Width: 7 chunks minimum + some text space; Height: font height + padding.
+  QSize size(qMax(9, cw) * 7 + fm.horizontalAdvance(QLatin1Char('0')) * 4,
+             fm.height() + 8);
+
+  // If vertical, transpose the calculated size.
+  if (orientation() == Qt::Vertical) size.transpose();
+
   return style()->sizeFromContents(QStyle::CT_ProgressBar, &opt, size, this);
 }
 
@@ -352,16 +366,19 @@ void QBucketProgressBar::initStyleOption(QStyleOptionProgressBar* option) const 
   }
 
   option->initFrom(this);
+  // Convey orientation to the style via State_Horizontal (absence => vertical).
   if (m_orientation == Qt::Horizontal) {
     option->state |= QStyle::State_Horizontal;
+  } else {
+    option->state &= ~QStyle::State_Horizontal;
   }
+
   option->minimum = m_minimum;
   option->maximum = m_maximum;
   option->progress = m_value;
   option->textAlignment = m_alignment;
   option->textVisible = m_textVisible;
   option->text = text();
-  option->orientation = m_orientation;  // ### Qt 6: remove this member from QStyleOptionProgressBar
   option->invertedAppearance = m_invertedAppearance;
   option->bottomToTop = m_textDirection == QProgressBar::BottomToTop;
 }
@@ -448,27 +465,54 @@ void QBucketProgressBarStyle::drawControl(QStyle::ControlElement element,
                                           QPainter* painter,
                                           const QWidget* widget) const {
   switch (element) {
-    case QStyle::CE_ProgressBarLabel:
-      if (const QStyleOptionProgressBar *pb = qstyleoption_cast<const QStyleOptionProgressBar *>(option)) {
-        const bool vertical = pb->orientation == Qt::Vertical;
+case QStyle::CE_ProgressBarLabel:
+    if (const QStyleOptionProgressBar *pb =
+            qstyleoption_cast<const QStyleOptionProgressBar *>(option)) {
+
+        // Qt 6: orientation is not a member; infer from state.
+        const bool vertical = !(pb->state & QStyle::State_Horizontal);
+
         QPalette::ColorRole textRole = QPalette::Text;
+
+        // If centered (or vertical) and at least half-filled, draw highlighted text
         if ((pb->textAlignment & Qt::AlignCenter || vertical) && pb->textVisible
-            && ((qint64(pb->progress) - qint64(pb->minimum)) * 2 >= (qint64(pb->maximum) - qint64(pb->minimum)))) {
-          textRole = QPalette::HighlightedText;
-          //Draw text shadow, This will increase readability when the background of same color
-          QRect shadowRect(pb->rect);
-          shadowRect.translate(1, 1);
-          QColor shadowColor = (pb->palette.color(textRole).value() <= 128)
-                                   ? QColor(255, 255, 255, 160) : QColor(0, 0, 0, 16);
-          QPalette shadowPalette = pb->palette;
-          shadowPalette.setColor(textRole, shadowColor);
-          proxy()->drawItemText(painter, shadowRect, Qt::AlignCenter | Qt::TextSingleLine, shadowPalette,
-                                pb->state & State_Enabled, pb->text, textRole);
+            && ((qint64(pb->progress) - qint64(pb->minimum)) * 2
+                >= (qint64(pb->maximum) - qint64(pb->minimum)))) {
+
+            textRole = QPalette::HighlightedText;
+
+            // Draw a soft shadow to improve readability on similar backgrounds
+            QRect shadowRect(pb->rect);
+            shadowRect.translate(1, 1);
+
+            const QColor base = pb->palette.color(textRole);
+            const QColor shadowColor =
+                (base.value() <= 128) ? QColor(255, 255, 255, 160)   // light shadow on dark text
+                                      : QColor(0,   0,   0,   16);   // dark shadow on light text
+
+            QPalette shadowPalette = pb->palette;
+            shadowPalette.setColor(textRole, shadowColor);
+
+            proxy()->drawItemText(painter,
+                                  shadowRect,
+                                  Qt::AlignCenter | Qt::TextSingleLine,
+                                  shadowPalette,
+                                  (pb->state & QStyle::State_Enabled),
+                                  pb->text,
+                                  textRole);
         }
-        proxy()->drawItemText(painter, pb->rect, Qt::AlignCenter | Qt::TextSingleLine, pb->palette,
-                              pb->state & State_Enabled, pb->text, textRole);
-      }
-      break;
+
+        // Foreground label
+        proxy()->drawItemText(painter,
+                              pb->rect,
+                              Qt::AlignCenter | Qt::TextSingleLine,
+                              pb->palette,
+                              (pb->state & QStyle::State_Enabled),
+                              pb->text,
+                              textRole);
+    }
+    break;
+
 
     case QStyle::CE_ProgressBarGroove:
       if (option->rect.isValid())
@@ -476,124 +520,137 @@ void QBucketProgressBarStyle::drawControl(QStyle::ControlElement element,
                           &option->palette.brush(QPalette::Window));
       break;
 
-    case QStyle::CE_ProgressBarContents:
-      if (const QStyleOptionProgressBar *pb = qstyleoption_cast<const QStyleOptionProgressBar*>(option)) {
-          if (pb->minimum != pb->maximum) {
-            QRect rect = pb->rect;
-            QRectF r = subElementRect(QStyle::SE_ProgressBarLayoutItem, pb, widget);
-            if (!r.isValid()) {
-              r = rect;
-              rect = QRect(r.x() + 1, r.y() + (pb->orientation == Qt::Vertical ? 0 : 1),
-                           r.width() - 2, r.height() - 2);
-            }
+case QStyle::CE_ProgressBarContents:
+    if (const QStyleOptionProgressBar *pb =
+            qstyleoption_cast<const QStyleOptionProgressBar*>(option)) {
 
-            const bool vertical = pb->orientation == Qt::Vertical;
+        if (pb->minimum != pb->maximum) {
+            QRect  rect = pb->rect;
+            QRectF r    = subElementRect(QStyle::SE_ProgressBarLayoutItem, pb, widget);
+
+            // Qt 6: orientation is not a field; derive it from the state flag.
+            const bool vertical = !(pb->state & QStyle::State_Horizontal);
             const bool inverted = pb->invertedAppearance;
-            qint64 minimum = qint64(pb->minimum);
-            qint64 maximum = qint64(pb->maximum);
-            qint64 progress = qint64(pb->progress) - minimum;
-            QPalette pal2 = pb->palette;
 
-            // Correct the highlight color if it is the same as the background
-            if (pal2.highlight() == pal2.window()) {
-              pal2.setColor(QPalette::Highlight, pb->palette.color(QPalette::Active,
-                                                                   QPalette::Highlight));
+            if (!r.isValid()) {
+                r = rect;
+                rect = QRect(r.x() + 1,
+                             r.y() + (vertical ? 0 : 1),
+                             r.width() - 2,
+                             r.height() - 2);
             }
 
-            bool reverse = ((!vertical && (pb->direction == Qt::RightToLeft)) || vertical);
+            const qint64 minimum  = qint64(pb->minimum);
+            const qint64 maximum  = qint64(pb->maximum);
+            const qint64 progress = qint64(pb->progress) - minimum;
+
+            QPalette pal2 = pb->palette;
+            // If highlight equals window, pick active highlight so chunks are visible
+            if (pal2.highlight() == pal2.window()) {
+                pal2.setColor(QPalette::Highlight,
+                              pb->palette.color(QPalette::Active, QPalette::Highlight));
+            }
+
+            const bool reverse = ((!vertical && (pb->direction == Qt::RightToLeft)) || vertical);
 
             QStyleOptionProgressBar pbBits = *pb;
-            pbBits.rect = rect;
+            pbBits.rect    = rect;
             pbBits.palette = pal2;
-            pbBits.state = State_None;
-            int myHeight;
-            int myWidth;
-            int myX = rect.x();
-            int myY = rect.y();
+            pbBits.state   = QStyle::State_None; // we draw only the "contents"/chunk
+
+            int myWidth  = 0;
+            int myHeight = 0;
+            int myX      = rect.x();
+            int myY      = rect.y();
+
+            const qreal denom = (maximum - minimum) == 0 ? 1.0 : qreal(maximum - minimum);
+
             if (vertical) {
-              myHeight = (rect.height() / qreal(maximum - minimum == 0 ? 1.0 : maximum - minimum)) * progress;
-              myWidth = rect.width();
-              myY = 1 + ((inverted) ? rect.bottom() + 2 - myHeight : rect.top());
+                myHeight = int((rect.height() / denom) * progress);
+                myWidth  = rect.width();
+                myY      = 1 + (inverted ? rect.bottom() + 2 - myHeight : rect.top());
             } else {
-              myHeight = rect.height();
-              myWidth = (rect.width() / qreal(maximum - minimum == 0 ? 1.0 : maximum - minimum)) * progress;
-              if (reverse != inverted) {
-                myX = rect.right() - myWidth + 1;
-              }
+                myHeight = rect.height();
+                myWidth  = int((rect.width() / denom) * progress);
+                if (reverse != inverted) {
+                    myX = rect.right() - myWidth + 1;
+                }
             }
             pbBits.rect.setRect(myX, myY, myWidth, myHeight);
 
 #if QT_CONFIG(animation)
+            // Reuse any existing animation object attached to the styleObject
             QBucketProgressBarAnimation *animation = nullptr;
             for (QObject *obj : option->styleObject->children()) {
-              if ((animation = qobject_cast<QBucketProgressBarAnimation*>(obj))) {
-                break;
-              }
+                if ((animation = qobject_cast<QBucketProgressBarAnimation*>(obj))) {
+                    break;
+                }
             }
-
             if (animation) {
-              if (progress == maximum) {
-                animation->stop();
-              } else if (animation->state() == QAbstractAnimation::Stopped) {
-                animation->start();
-              }
+                if (progress == maximum) {
+                    animation->stop();
+                } else if (animation->state() == QAbstractAnimation::Stopped) {
+                    animation->start();
+                }
             } else {
-              QBucketProgressBarAnimation *animation = new QBucketProgressBarAnimation(option->styleObject);
-              animation->start();
+                auto *anim = new QBucketProgressBarAnimation(option->styleObject);
+                anim->start();
             }
 #endif
 
-            QBucketProgressBar *bar = qobject_cast<QBucketProgressBar*>(option->styleObject);
-            // draw all visible buckets
-            if (bar && progress > 0) {
-              qint64 buckPos = 0;
-              int dif = 0;
-              for (QBucketProgressBar::Bucket &b : bar->m_buckets) {
-                if (b.visible) {
-                  dif += ((b.value - b.min) / (qreal) progress) *
-                         ((vertical) ? pbBits.rect.height() : pbBits.rect.width());
-                }
-              }
-              dif = ((vertical) ? pbBits.rect.height() : pbBits.rect.width()) - dif;
+            if (auto *bar = qobject_cast<QBucketProgressBar*>(option->styleObject)) {
+                // Draw all visible buckets, proportionally within pbBits.rect
+                if (progress > 0) {
+                    qint64 buckPos = 0;
+                    int dif = 0;
 
-              for (int i = 0; i < bar->m_buckets.size(); i++) {
-                QBucketProgressBar::Bucket b = bar->m_buckets[i];
-                int bucketProgress = b.value - b.min;
-                if (b.visible) {
-                  QStyleOptionProgressBar bucket = pbBits;
-                  QPalette palB = bucket.palette;
-                  palB.setColor(QPalette::Highlight, b.color);
-                  bucket.palette = palB;
+                    // First pass: compute rounding compensation (dif)
+                    for (const QBucketProgressBar::Bucket &b : bar->m_buckets) {
+                        if (b.visible) {
+                            const int delta = b.value - b.min;
+                            dif += int((delta / qreal(progress)) *
+                                       (vertical ? pbBits.rect.height() : pbBits.rect.width()));
+                        }
+                    }
+                    dif = (vertical ? pbBits.rect.height() : pbBits.rect.width()) - dif;
 
-                  QRect r = bucket.rect;
-                  if (!vertical) {
-                    int w = (bucketProgress / (qreal) progress) * r.width();
-                    if (dif > 0 && bucketProgress > 0) {
-                      w++;
-                      dif--;
+                    // Second pass: draw each bucket
+                    for (const QBucketProgressBar::Bucket &b : bar->m_buckets) {
+                        const int bucketProgress = b.value - b.min;
+                        if (!b.visible)
+                            continue;
+
+                        QStyleOptionProgressBar bucket = pbBits;
+                        QPalette palB = bucket.palette;
+                        palB.setColor(QPalette::Highlight, b.color);
+                        bucket.palette = palB;
+
+                        const QRect rct = bucket.rect;
+                        if (!vertical) {
+                            int w = int((bucketProgress / qreal(progress)) * rct.width());
+                            if (dif > 0 && bucketProgress > 0) { ++w; --dif; }
+                            bucket.rect = QRect(rct.x() + buckPos, rct.y(), w, rct.height());
+                            buckPos += w;
+                        } else {
+                            int h = int((bucketProgress / qreal(progress)) * rct.height());
+                            if (dif > 0 && bucketProgress > 0) { ++h; --dif; }
+                            bucket.rect = QRect(rct.x(), rct.y() + buckPos, rct.width(), h);
+                            buckPos += h;
+                        }
+
+                        proxy()->drawPrimitive(PE_IndicatorProgressChunk, &bucket, painter, widget);
                     }
-                    bucket.rect = QRect(r.x() + buckPos, r.y(), w, r.height());
-                    buckPos += w;
-                  } else {
-                    int h = (bucketProgress / (qreal) progress) * r.height();
-                    if (dif > 0 && bucketProgress > 0) {
-                      h++;
-                      dif--;
-                    }
-                    bucket.rect = QRect(r.x(), r.y() + buckPos, r.width(), h);
-                    buckPos += h;
-                  }
-                  proxy()->drawPrimitive(PE_IndicatorProgressChunk, &bucket, painter, widget);
+                } else {
+                    // No progress yet: fall through to single chunk draw below
+                    proxy()->drawPrimitive(PE_IndicatorProgressChunk, &pbBits, painter, widget);
                 }
-              }
-            }
-            // daraw a single rectangle for the entire progress indicator
-            else {
-              proxy()->drawPrimitive(PE_IndicatorProgressChunk, &pbBits, painter, widget);
+            } else {
+                // Fallback: draw a single rectangle for the entire progress indicator
+                proxy()->drawPrimitive(PE_IndicatorProgressChunk, &pbBits, painter, widget);
             }
         }
-      }
-      break;
+    }
+    break;
 
     case QStyle::CE_ProgressBar:
       if (const QStyleOptionProgressBar *pb = qstyleoption_cast<const QStyleOptionProgressBar *>(option)) {
@@ -640,8 +697,9 @@ void QBucketProgressBarStyle::drawPrimitive(QStyle::PrimitiveElement element,
     case QStyle::PE_IndicatorProgressChunk:
     {
       bool vertical = false, inverted = false;
-      if (const QStyleOptionProgressBar *pb = qstyleoption_cast<const QStyleOptionProgressBar *>(option)) {
-        vertical = pb->orientation == Qt::Vertical;
+      if (const auto *pb = qstyleoption_cast<const QStyleOptionProgressBar *>(option)) {
+        // Qt 6: no orientation member; infer from state flags
+        vertical = !(pb->state & QStyle::State_Horizontal);
         inverted = pb->invertedAppearance;
       }
 
@@ -904,16 +962,18 @@ void QBucketProgressBarAnimation::QAnimatedBucketGradient::timerEvent(QTimerEven
 
   if (bar->orientation() == Qt::Horizontal) {
     option.state |= QStyle::State_Horizontal;
+  } else {
+    option.state &= ~QStyle::State_Horizontal; // explicitly clear if vertical
   }
-  option.minimum = bar->minimum();
-  option.maximum = bar->maximum();
+
+  option.minimum  = bar->minimum();
+  option.maximum  = bar->maximum();
   option.progress = bar->value();
-  option.textAlignment = bar->alignment();
-  option.textVisible = bar->isTextVisible();
-  option.text = bar->text();
-  option.orientation = bar->orientation();  // ### Qt 6: remove this member from QStyleOptionProgressBar
+  option.textAlignment      = bar->alignment();
+  option.textVisible        = bar->isTextVisible();
+  option.text               = bar->text();
   option.invertedAppearance = bar->invertedAppearance();
-  option.bottomToTop = bar->textDirection() == QProgressBar::BottomToTop;
+  option.bottomToTop        = (bar->textDirection() == QProgressBar::BottomToTop);
 
   m_vertical = bar->orientation() == Qt::Vertical;
   m_inverted = bar->invertedAppearance();

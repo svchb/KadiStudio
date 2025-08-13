@@ -4,11 +4,11 @@ set(SRCS
 )
 
 set(RCCS kadiconfig.qrc)
-QT5_ADD_RESOURCES(RCC_SRCS ${RCCS})
+QT6_ADD_RESOURCES(RCC_SRCS ${RCCS})
 
 add_library(kadistudio_kadiconfig SHARED ${SRCS} ${RCC_SRCS})
 
-target_link_libraries(kadistudio_kadiconfig ${KADISTUDIO_FRAMEWORK} Qt5::Network Qt5::Widgets)
+target_link_libraries(kadistudio_kadiconfig ${KADISTUDIO_FRAMEWORK} Qt6::Network Qt6::Widgets)
 
 string(REPLACE ${PROJECT_SOURCE_DIR} "" outputdestination ${CMAKE_CURRENT_SOURCE_DIR})
 

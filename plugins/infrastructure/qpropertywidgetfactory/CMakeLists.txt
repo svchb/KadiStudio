@@ -68,14 +68,14 @@ target_include_directories(kadistudio_qpropertywidgetfactory
 target_link_libraries(kadistudio_qpropertywidgetfactory
   ${KADISTUDIO_FRAMEWORK}
   properties
-  Qt5::Widgets
+  Qt6::Widgets
 )
 
 if(WEBVIEW_SUPPORT_ENABLED)
   target_link_libraries(kadistudio_qpropertywidgetfactory
-    Qt5::WebEngine
-    Qt5::WebEngineWidgets
-    Qt5::Network
+    Qt6::WebEngineCore
+    Qt6::WebEngineWidgets
+    Qt6::Network
   )
 endif()
 

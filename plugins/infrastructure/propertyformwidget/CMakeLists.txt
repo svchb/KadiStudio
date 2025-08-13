@@ -11,7 +11,7 @@ add_library(kadistudio_propertyformwidget SHARED
   ${SRCS}
 )
 
-target_link_libraries(kadistudio_propertyformwidget ${KADISTUDIO_FRAMEWORK} properties Qt5::Xml Qt5::Widgets)
+target_link_libraries(kadistudio_propertyformwidget ${KADISTUDIO_FRAMEWORK} properties Qt6::Xml Qt6::Widgets)
 
 string(REPLACE ${PROJECT_SOURCE_DIR} "" outputdestination ${CMAKE_CURRENT_SOURCE_DIR})
 

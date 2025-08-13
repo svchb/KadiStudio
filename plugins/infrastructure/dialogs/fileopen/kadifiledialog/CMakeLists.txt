@@ -5,7 +5,7 @@ set(SRCS
 
 add_library(kadistudio_kadifiledialog SHARED ${SRCS})
 
-target_link_libraries(kadistudio_kadifiledialog ${KADISTUDIO_FRAMEWORK} Qt5::Widgets)
+target_link_libraries(kadistudio_kadifiledialog ${KADISTUDIO_FRAMEWORK} Qt6::Widgets)
 
 string(REPLACE ${PROJECT_SOURCE_DIR} "" outputdestination ${CMAKE_CURRENT_SOURCE_DIR})
 

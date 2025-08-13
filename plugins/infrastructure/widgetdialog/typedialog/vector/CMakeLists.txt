@@ -6,7 +6,7 @@ set(SRCS
 )
 
 set(RCCS ../../resources_icons.qrc)
-QT5_ADD_RESOURCES(RCC_SRCS ${RCCS})
+QT6_ADD_RESOURCES(RCC_SRCS ${RCCS})
 
 add_library(kadistudio_vectordialog SHARED ${SRCS} ${RCC_SRCS})
 
@@ -14,7 +14,7 @@ target_include_directories(kadistudio_vectordialog
   PRIVATE ${PROJECT_SOURCE_DIR}/
 )
 
-target_link_libraries(kadistudio_vectordialog ${KADISTUDIO_FRAMEWORK} ${Qt5Widgets_LIBRARIES})
+target_link_libraries(kadistudio_vectordialog ${KADISTUDIO_FRAMEWORK} ${Qt6Widgets_LIBRARIES})
 
 string(REPLACE ${PROJECT_SOURCE_DIR} "" outputdestination ${CMAKE_CURRENT_SOURCE_DIR})
 

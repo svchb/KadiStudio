@@ -1,4 +1,4 @@
-find_package(Qt5 COMPONENTS Widgets Gui REQUIRED)
+find_package(Qt6 COMPONENTS Widgets Gui REQUIRED)
 set(QT_USE_QTGUI TRUE)
 set(QT_USE_QTOPENGL TRUE)
 set(QT_USE_OPENGL TRUE)

@@ -10,14 +10,14 @@ set(SRCS
 
 
 set(RCCS logdialog.qrc)
-QT5_ADD_RESOURCES(RCC_SRCS ${RCCS})
+QT6_ADD_RESOURCES(RCC_SRCS ${RCCS})
 
 add_library(kadistudio_logdialog SHARED
   ${SRCS}
   ${RCC_SRCS}
 )
 
-target_link_libraries(kadistudio_logdialog ${Qt5Widgets_LIBRARIES} ${KADISTUDIO_FRAMEWORK})
+target_link_libraries(kadistudio_logdialog ${Qt6Widgets_LIBRARIES} ${KADISTUDIO_FRAMEWORK})
 
 string(REPLACE ${PROJECT_SOURCE_DIR} "" outputdestination ${CMAKE_CURRENT_SOURCE_DIR})
 
