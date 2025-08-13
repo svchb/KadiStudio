@@ -38,7 +38,7 @@ SettingsGui::SettingsGui(QSettings* settings, WidgetFactoryInterface* wfi, QWidg
             {QVariant::Double, "double"}
     };
     std::string type = "string";
-    auto type_result = type_mapping.find(settings->value(setting_key).type());
+    auto type_result = type_mapping.find(settings->value(setting_key).metaType().id());
     if (type_result != type_mapping.end()) {
       type = type_result->second;
     }
@@ -50,9 +50,7 @@ SettingsGui::SettingsGui(QSettings* settings, WidgetFactoryInterface* wfi, QWidg
   }
   wfi->createGui(model, this);
 
-  QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok |
-                                                     QDialogButtonBox::Cancel,
-                                                     Qt::Horizontal);
+  auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,Qt::Horizontal);
 
   layout->addWidget(buttonBox);
 

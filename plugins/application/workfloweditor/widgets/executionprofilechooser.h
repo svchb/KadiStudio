@@ -20,7 +20,7 @@
 #include "../domain/executionprofile.h"
 #include <QPushButton>
 #include <QActionGroup>
-#include <QSvgWidget>
+#include <QtSvgWidgets/QSvgWidget>
 
 using ExecutionProfiles::ExecutionProfile;
 

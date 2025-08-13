@@ -28,7 +28,7 @@ void StatusDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option
     progressBarOption.state = QStyle::State_Enabled;
     progressBarOption.direction = QApplication::layoutDirection();
     progressBarOption.rect = option.rect;
-    progressBarOption.fontMetrics = QApplication::fontMetrics();
+    progressBarOption.fontMetrics = QFontMetrics(option.font);
     progressBarOption.minimum = 0;
     progressBarOption.maximum = 100;
     progressBarOption.textAlignment = Qt::AlignCenter;

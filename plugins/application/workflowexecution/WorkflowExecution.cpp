@@ -138,10 +138,12 @@ QMenu *WorkflowExecution::createMenu() {
   return workflowMenu;
 }
 
-void WorkflowExecution::refreshWorkflows() {
+void WorkflowExecution::refreshWorkflows()
+{
   TabInterface *tab = TabDelegate::getInstance();
-  if (tab->isTabActive("/plugins/application/workflowexecution")) {
-    QtConcurrent::run(this, &WorkflowExecution::retrieveWorkflows);
+  if (tab->isTabActive(QStringLiteral("/plugins/application/workflowexecution"))) {
+    QFuture<void> fut = QtConcurrent::run(&WorkflowExecution::retrieveWorkflows, this);
+
     workflowRefreshTimer->setInterval(REFRESH_INTERVAL_ACTIVE);
   } else {
     workflowRefreshTimer->setInterval(REFRESH_INTERVAL_INACTIVE);

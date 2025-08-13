@@ -4,7 +4,7 @@ set(SRCS
 )
 
 set(RCCS testplugin.qrc)
-QT5_ADD_RESOURCES(RCC_SRCS ${RCCS})
+QT6_ADD_RESOURCES(RCC_SRCS ${RCCS})
 
 add_library(kadistudio_testplugin SHARED ${SRCS})
 

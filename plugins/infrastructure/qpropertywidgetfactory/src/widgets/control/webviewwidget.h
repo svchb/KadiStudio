@@ -23,6 +23,7 @@
 #include <QtWidgets/QPushButton>
 #include <properties/ui/factory/propertywidget.h>
 #include "../../../qpropertywidget.h"
+#include <QNetworkReply>
 
 
 /**

@@ -24,7 +24,7 @@ bool WorkflowTableSortFilter::lessThan(const QModelIndex &left, const QModelInde
   QVariant leftData = sourceModel()->data(left);
   QVariant rightData = sourceModel()->data(right);
 
-  if (leftData.type() == QVariant::DateTime) {
+  if (leftData.metaType().id() == QMetaType::QDateTime) {
     return leftData.toDateTime() < rightData.toDateTime();
   } else if (left.column() == 2) {
     return leftData.toInt() < rightData.toInt();
