@@ -26,12 +26,12 @@
  * @brief      The workspace in which the plugins are loaded inside the mainwindow.
  * @ingroup    framework
  */
-class DLLAPI Workspace : public QTabWidget {
+class DLLAPI Workspace final : public QTabWidget {
   Q_OBJECT
 
   public:
     Workspace();
-    virtual ~Workspace();
+    ~Workspace() override;
 
     void addTab(const QString& callernamespace, QWidget* widget, const QString& name);
     void addToolBar(const QString& callernamespace, QToolBar* toolbar);

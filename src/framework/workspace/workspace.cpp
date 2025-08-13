@@ -28,8 +28,8 @@ Workspace::Workspace() : QTabWidget(nullptr) {
 }
 
 Workspace::~Workspace() {
-  for (int i = 0; i < plugintabs.count(); i++) {
-    tabClosed(i);
+  while (count() > 0) {
+    tabClosed(count() - 1);
   }
 }
 
@@ -44,14 +44,27 @@ void Workspace::tabChanged(int index) {
   mainwindow->showPluginItems(namespacepath);
 }
 
-void Workspace::addTab(const QString& callernamespace, QWidget* widget, const QString& name) {
-  QWidget *tabwidget = new QWidget;
-  QVBoxLayout *layout = new QVBoxLayout;
-  tabwidget->setLayout(layout);
-  layout->insertWidget(1, widget);
+void Workspace::addTab(const QString& callernamespace, QWidget* widget, const QString& name)
+{
+  if (!widget) {
+    qWarning() << "Workspace::addTab: nullptr widget for" << callernamespace;
+    return;
+  }
+
+  // Outer container for the tab
+  auto *tabwidget = new QWidget(this);
+  auto *layout    = new QVBoxLayout(tabwidget);
+  layout->setContentsMargins(0, 0, 0, 0);
+  layout->setSpacing(0);
+
+  widget->setParent(tabwidget);
+  layout->addWidget(widget);
+
   plugintabs.insert(callernamespace, tabwidget);
-  QTabWidget::addTab(tabwidget, name);
-  QTabWidget::setCurrentWidget(tabwidget);
+
+  // Add & activate
+  const int idx = QTabWidget::addTab(tabwidget, name);
+  QTabWidget::setCurrentIndex(idx);
 }
 
 void Workspace::addToolBar(const QString& callernamespace, QToolBar* toolbar) {
@@ -60,7 +73,7 @@ void Workspace::addToolBar(const QString& callernamespace, QToolBar* toolbar) {
     qDebug("Workspace: Can't add toolbar to the tab in namespace %s. Please add a tab first.", qPrintable(callernamespace));
     return;
   }
-  QVBoxLayout *layout = qobject_cast<QVBoxLayout*>(tab->layout());
+  auto* layout = qobject_cast<QVBoxLayout*>(tab->layout());
   layout->insertWidget(0, toolbar);
 }
 
@@ -93,22 +106,53 @@ bool Workspace::isTabActive(const QString &callernamespace) {
   return QTabWidget::currentIndex() == index;
 }
 
-void Workspace::tabClosed(int index) {
+void Workspace::tabClosed(int index)
+{
+  if (index < 0 || index >= count())
+    return;
+
   MainWindow *mainwindow = MainWindow::getInstance();
-  QWidget *widget = QTabWidget::widget(index);
-  const QString &namespacepath = plugintabs.key(widget);
-  pluginmanager->unload(namespacepath.toStdString());
-  if (pluginmanager->isUnloaded(namespacepath.toStdString())) {
-    mainwindow->removePluginItems(namespacepath);
+
+  QWidget *page = QTabWidget::widget(index);
+  if (!page) {
+    // Just remove the tab frame if something went wrong
+    QTabWidget::removeTab(index);
+    return;
   }
 
-  const LibFramework::PluginInfo *plugininfo = pluginmanager->getPluginInfos(namespacepath.toStdString()).at(0);
-  std::set<std::string> requiredpluginnamespaces = plugininfo->getRequiredNamespaces();
-  for (const std::string& requiredpluginnamespace : requiredpluginnamespaces) {
-    if (pluginmanager->isUnloaded(requiredpluginnamespace)) {
-      mainwindow->removePluginItems(QString::fromStdString(requiredpluginnamespace));
+  // Find the namespace key for this page
+  const QString ns = plugintabs.key(page);
+  if (ns.isEmpty()) {
+    // Mapping not found; still remove the tab safely
+    QTabWidget::removeTab(index);
+    page->deleteLater();
+    return;
+  }
+
+  // Unload plugin and update UI safely
+  pluginmanager->unload(ns.toStdString());
+
+  if (pluginmanager->isUnloaded(ns.toStdString()) && mainwindow) {
+    mainwindow->removePluginItems(ns);
+  }
+
+  // Guard against empty info list!
+  const auto &infos = pluginmanager->getPluginInfos(ns.toStdString());
+  if (!infos.empty() && infos[0] != nullptr) {
+    const std::set<std::string> required = infos[0]->getRequiredNamespaces();
+    if (mainwindow) {
+      for (const std::string &rns : required) {
+        if (pluginmanager->isUnloaded(rns)) {
+          mainwindow->removePluginItems(QString::fromStdString(rns));
+        }
+      }
     }
   }
+
+  // Keep bookkeeping in sync and destroy the page
+  plugintabs.remove(ns);
+  QTabWidget::removeTab(index);
+  page->deleteLater();
 }
 
 void Workspace::removeTab(const QString& callernamespace) {
