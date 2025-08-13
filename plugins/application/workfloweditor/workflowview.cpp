@@ -567,42 +567,53 @@ bool WorkflowView::checkUnsavedValues() {
   return false;
 }
 
-void WorkflowView::adjustDragPositions(QMouseEvent* event, qreal border) {
-  if (border < DIAGRAMSCENE_BORDER_WIDTH) {
+void WorkflowView::adjustDragPositions(QMouseEvent* event, qreal border)
+{
+  if (border < DIAGRAMSCENE_BORDER_WIDTH)
     border = DIAGRAMSCENE_BORDER_WIDTH;
-  }
 
+  const QPointF posF = event->position();      // Qt 6: preferred API
   qreal diffX = 0.0;
   qreal diffY = 0.0;
-  qreal mouseX = event->x();
-  qreal mouseY = event->y();
-  // check left border:
-  if (event->x() < border) {
-    diffX = std::max(event->x(), 0) - border;
+
+  qreal mouseX = posF.x();
+  qreal mouseY = posF.y();
+
+  // Left border
+  if (posF.x() < border) {
+    diffX  = std::max(posF.x(), qreal(0)) - border;
     mouseX = border;
   }
-  // check right border:
-  qreal distX = this->width() - border;
-  if (event->x() > distX) {
-    diffX = std::min(event->x() - distX, border);
+
+  // Right border
+  const qreal distX = qreal(this->width()) - border;
+  if (posF.x() > distX) {
+    diffX  = std::min(posF.x() - distX, border);
     mouseX = distX;
   }
-  // check top border:
-  if (event->y() < border) {
-    diffY = std::max(event->y(), 0) - border;
+
+  // Top border
+  if (posF.y() < border) {
+    diffY  = std::max(posF.y(), qreal(0)) - border;
     mouseY = border;
   }
-  // check bottom border:
-  qreal distY = this->height() - border;
-  if (event->y() > distY) {
-    diffY = std::min(event->y() - distY, border);
+
+  // Bottom border
+  const qreal distY = qreal(this->height()) - border;
+  if (posF.y() > distY) {
+    diffY  = std::min(posF.y() - distY, border);
     mouseY = distY;
   }
+
   if (diffX != 0.0 || diffY != 0.0) {
-    // move the scene
+    // Move the scene
     setSceneRect(sceneRect().translated(diffX, diffY));
+
+    // Reposition the cursor to the clamped point (convert to ints where required)
     this->clearFocus();
-    QCursor::setPos(QWidget::mapToGlobal(QPoint(mouseX, mouseY)));
+    const QPoint localTarget(qRound(mouseX), qRound(mouseY));
+    const QPoint globalTarget = this->mapToGlobal(localTarget);
+    QCursor::setPos(globalTarget);
     this->setFocus();
   }
 }
@@ -651,16 +662,19 @@ void WorkflowView::dragMoveEvent(QDragMoveEvent* e) {
   e->ignore();
 }
 
-void WorkflowView::dropEvent(QDropEvent* e) {
+void WorkflowView::dropEvent(QDropEvent* e)
+{
   if (e->mimeData()->hasUrls()) {
-    QString filepath = e->mimeData()->urls().at(0).toLocalFile();
+    const QString filepath = e->mimeData()->urls().at(0).toLocalFile();
     QFileInfo fi(filepath);
-    if (fi.suffix() == "flow") {
+    if (fi.suffix() == QLatin1String("flow")) {
       if (QApplication::queryKeyboardModifiers() & Qt::ShiftModifier) {
-        QPointF offset = mapToScene(e->pos()); // position of paste target as offset
+        // Qt 6: pos() → position().toPoint()
+        const QPointF offset = mapToScene(e->position().toPoint());
         merge(filepath, offset);
       } else {
-        if (not checkUnsavedValues()) load(filepath);
+        if (!checkUnsavedValues())
+          load(filepath);
       }
       e->acceptProposedAction();
       return;

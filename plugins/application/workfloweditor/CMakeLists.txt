@@ -1,3 +1,4 @@
+find_package(Qt6 COMPONENTS Widgets Svg SvgWidgets REQUIRED)
 find_package(Qt6PrintSupport REQUIRED)
 
 set(SRCS
@@ -73,6 +74,7 @@ target_link_libraries(kadistudio_workfloweditor
   ${KADISTUDIO_FRAMEWORK}
   Qt6::Xml
   Qt6::Svg
+  Qt6::SvgWidgets
   Qt6::PrintSupport
   QtNodes
 )
